@@ -120,20 +120,14 @@ class ErrorLogTest extends TestCase
         try {
             \wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
             \set_current_screen('dashboard');
-            global $wp_dashboard_control_callbacks;
+            global $wp_meta_boxes;
             $domain = $this->reflection->getProperty('domain');
             $domain->setAccessible(true);
             $domain = $domain->getValue($this->error_log);
             $addDashboardWidget = $this->reflection->getMethod('addDashboardWidget');
             $addDashboardWidget->setAccessible(true);
             $this->assertNull($addDashboardWidget->invoke($this->error_log));
-            $this->assertTrue(isset($wp_dashboard_control_callbacks));
-            $this->assertTrue(isset($wp_dashboard_control_callbacks[$domain]));
-            $this->assertIsCallable($wp_dashboard_control_callbacks[$domain]);
-            \ob_start();
-            \call_user_func($wp_dashboard_control_callbacks[$domain]);
-            $actual = \ob_get_clean();
-            $this->assertNotEmpty($actual);
+            $this->assertTrue(\strpos(\wp_json_encode($wp_meta_boxes), $domain) > 0);
         } catch (\Throwable $throwable) {
             $this->assertInstanceOf(\ReflectionException::class, $throwable);
             $this->markAsRisky();
