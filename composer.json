@@ -64,7 +64,7 @@
     ],
     "tests": [
       "@phpcs",
-      "@phpunit",
+      "@phpunit"
     ]
   }
 }
