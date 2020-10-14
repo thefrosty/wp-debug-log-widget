@@ -118,10 +118,20 @@ class ErrorLogTest extends TestCase
         $this->assertTrue(\method_exists($this->error_log, 'addDashboardWidget'));
 
         try {
+            /** Load WordPress dashboard API */
+            require_once \ABSPATH . 'wp-admin/includes/dashboard.php';
+            \wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+            \set_current_screen('dashboard');
+            global $wp_meta_boxes;
+            $domain = $this->reflection->getProperty('domain');
+            $domain->setAccessible(true);
+            $domain = $domain->getValue($this->error_log);
             $addDashboardWidget = $this->reflection->getMethod('addDashboardWidget');
             $addDashboardWidget->setAccessible(true);
             $this->assertNull($addDashboardWidget->invoke($this->error_log));
+            $this->assertTrue(\strpos(\wp_json_encode($wp_meta_boxes), $domain) > 0);
         } catch (\Throwable $throwable) {
+            error_log($throwable->getMessage());
             $this->assertInstanceOf(\ReflectionException::class, $throwable);
             $this->markAsRisky();
         }
