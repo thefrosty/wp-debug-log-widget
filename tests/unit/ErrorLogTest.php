@@ -22,11 +22,11 @@ class ErrorLogTest extends TestCase
      */
     public function setUp(): void
     {
+        parent::setUp();
         $this->error_log = new ErrorLog();
         $this->error_log->setPlugin($this->plugin);
         $this->error_log->setRequest(Request::createFromGlobals());
         $this->reflection = $this->getReflection($this->error_log);
-        parent::setUp();
     }
 
     /**
@@ -34,8 +34,8 @@ class ErrorLogTest extends TestCase
      */
     public function tearDown(): void
     {
-        parent::tearDown();
         unset($this->error_log);
+        parent::tearDown();
     }
 
     /**
@@ -45,7 +45,7 @@ class ErrorLogTest extends TestCase
     {
         $constants = $this->reflection->getConstants();
         $this->assertNotEmpty($constants);
-        $this->assertCount(11, $constants);
+        $this->assertCount(13, $constants);
     }
 
     /**
@@ -118,23 +118,20 @@ class ErrorLogTest extends TestCase
         $this->assertTrue(\method_exists($this->error_log, 'addDashboardWidget'));
 
         try {
+            /** Load WordPress dashboard API */
+            require_once \ABSPATH . 'wp-admin/includes/dashboard.php';
             \wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
             \set_current_screen('dashboard');
-            global $wp_dashboard_control_callbacks;
+            global $wp_meta_boxes;
             $domain = $this->reflection->getProperty('domain');
             $domain->setAccessible(true);
             $domain = $domain->getValue($this->error_log);
             $addDashboardWidget = $this->reflection->getMethod('addDashboardWidget');
             $addDashboardWidget->setAccessible(true);
             $this->assertNull($addDashboardWidget->invoke($this->error_log));
-            $this->assertTrue(isset($wp_dashboard_control_callbacks));
-            $this->assertTrue(isset($wp_dashboard_control_callbacks[$domain]));
-            $this->assertIsCallable($wp_dashboard_control_callbacks[$domain]);
-            \ob_start();
-            \call_user_func($wp_dashboard_control_callbacks[$domain]);
-            $actual = \ob_get_clean();
-            $this->assertNotEmpty($actual);
+            $this->assertTrue(\strpos(\wp_json_encode($wp_meta_boxes), $domain) > 0);
         } catch (\Throwable $throwable) {
+            error_log($throwable->getMessage());
             $this->assertInstanceOf(\ReflectionException::class, $throwable);
             $this->markAsRisky();
         }
@@ -170,7 +167,9 @@ class ErrorLogTest extends TestCase
         try {
             $formatErrors = $this->reflection->getMethod('formatErrors');
             $formatErrors->setAccessible(true);
-            $actual = $formatErrors->invoke($this->error_log, [], 1, 1);
+            \ob_start();
+            $formatErrors->invoke($this->error_log, [], 1, 1);
+            $actual = \ob_get_clean();
             $this->assertNotEmpty($actual);
         } catch (\Throwable $throwable) {
             $this->assertInstanceOf(\ReflectionException::class, $throwable);
