@@ -45,7 +45,7 @@ class ErrorLogTest extends TestCase
     {
         $constants = $this->reflection->getConstants();
         $this->assertNotEmpty($constants);
-        $this->assertCount(11, $constants);
+        $this->assertCount(13, $constants);
     }
 
     /**
@@ -170,7 +170,9 @@ class ErrorLogTest extends TestCase
         try {
             $formatErrors = $this->reflection->getMethod('formatErrors');
             $formatErrors->setAccessible(true);
-            $actual = $formatErrors->invoke($this->error_log, [], 1, 1);
+            \ob_start();
+            $formatErrors->invoke($this->error_log, [], 1, 1);
+            $actual = \ob_get_clean();
             $this->assertNotEmpty($actual);
         } catch (\Throwable $throwable) {
             $this->assertInstanceOf(\ReflectionException::class, $throwable);
