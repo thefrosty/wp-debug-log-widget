@@ -28,8 +28,8 @@ class TestCase extends \WP_UnitTestCase
     {
         parent::setUp();
         // Set the filename to the root of the plugin (not the test plugin (so we have asset access without mocks).
-        $filename = \dirname(__DIR__, 2) . '/wp-login-locker.php';
-        $this->plugin = PluginFactory::create('wp-login-locker', $filename);
+        $filename = \dirname(__DIR__, 2) . '/wp-debug-log-widget.php';
+        $this->plugin = PluginFactory::create('wp-debug-log-widget', $filename);
     }
 
     /**
@@ -37,8 +37,8 @@ class TestCase extends \WP_UnitTestCase
      */
     public function tearDown(): void
     {
-        unset($$this->plugin, $this->reflection);
         parent::tearDown();
+        unset($this->plugin, $this->reflection);
     }
 
     /**

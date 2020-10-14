@@ -22,11 +22,11 @@ class ErrorLogTest extends TestCase
      */
     public function setUp(): void
     {
+        parent::setUp();
         $this->error_log = new ErrorLog();
         $this->error_log->setPlugin($this->plugin);
         $this->error_log->setRequest(Request::createFromGlobals());
         $this->reflection = $this->getReflection($this->error_log);
-        parent::setUp();
     }
 
     /**
@@ -34,8 +34,8 @@ class ErrorLogTest extends TestCase
      */
     public function tearDown(): void
     {
-        parent::tearDown();
         unset($this->error_log);
+        parent::tearDown();
     }
 
     /**
