@@ -1,0 +1,70 @@
+{
+  "name": "thefrosty/wp-debug-log-widget",
+  "type": "wordpress-plugin",
+  "description": "Adds an admin dashboard widget to parse the WordPress error log file.",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Austin Passy",
+      "email": "thefrosty@users.noreply.github.com",
+      "homepage": "https://austin.passy.co"
+    }
+  ],
+  "require": {
+    "php": ">=7.3",
+    "ext-openssl": "*",
+    "composer/installers": "~1.0",
+    "pimple/pimple": "~3.0",
+    "symfony/http-foundation": "^5.0.7",
+    "thefrosty/wp-utilities": "^2.0"
+  },
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
+    "ext-simplexml": "*",
+    "phpunit/php-code-coverage": "^6",
+    "phpcompatibility/php-compatibility": "*",
+    "phpunit/phpunit": "^7",
+    "roave/security-advisories": "dev-master",
+    "roots/wordpress": "^5.5.1",
+    "slevomat/coding-standard": "~6.0",
+    "squizlabs/php_codesniffer": "^3.2",
+    "wp-phpunit/wp-phpunit": "^5.5.1"
+  },
+  "config": {
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true,
+    "vendor-dir": "vendor"
+  },
+  "autoload": {
+    "psr-4": {
+      "TheFrosty\\WpDebugLogWidget\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "TheFrosty\\Tests\\WpDebugLogWidget\\": "tests/unit"
+    }
+  },
+  "scripts": {
+    "install-codestandards": [
+      "Dealerdirect\\Composer\\Plugin\\Installers\\PHPCodeSniffer\\Plugin::run"
+    ],
+    "phpcs": [
+      "bash ./bin/phpcs.sh"
+    ],
+    "phpmd": [
+      "bash ./bin/phpmd.sh"
+    ],
+    "phpunit": [
+      "./vendor/bin/phpunit --colors --verbose --coverage-html ./tests/results && php ./tests/clover-results.php ./tests/clover.xml 85"
+    ],
+    "eslint": [
+      "npm run eslint"
+    ],
+    "tests": [
+      "@phpcs",
+      "@phpunit",
+    ]
+  }
+}

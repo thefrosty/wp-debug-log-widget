@@ -1,0 +1,64 @@
+####################################################################################
+# GitHub Action:
+# Whenever creating a new release of the source code.
+####################################################################################
+# Steps to execute:
+# - Checkout the source code
+# - Run "composer install" for production (required dependencies are already under vendor/)
+# - Create a .zip file, excluding:
+#   - All hidden files (.git, .gitignore, etc)
+#   - All development files, ending in .dist or .xml
+#   - All composer files <= after installing dependencies, no need for them anymore
+#   - Markdown files concerning development
+#   - JS Package files.
+#   - Folder build/ <= created only to store the .zip file
+#   - Folder bin/ <= not needed for the plugin
+#   - Folder tests/ <= not needed for the plugin
+# - Upload the .zip file as an artifact to the action (this step is possibly optional)
+# - Upload the .zip file as a release, for download
+####################################################################################
+name: Generate Installable Plugin and Upload as Release Asset
+on:
+  release:
+    types: [published]
+jobs:
+  build:
+    name: Build and Upload Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set Release Version env
+        run: |
+          VERSION=${{ github.event.release.tag_name }}
+          echo "Release Version: ${VERSION//v}"
+          echo ::set-env name=RELEASE_VERSION::${VERSION//v}
+      - name: Build project for production
+        run: |
+          echo "Release Version: ${{ github.event.release.tag_name }}"
+          composer install --no-dev --optimize-autoloader
+          mkdir build
+      - name: Create artifact
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -X -r build/wp-debug-log-widget.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: wp-debug-log-widget
+          path: build/wp-debug-log-widget.zip
+      - name: Upload to release
+        uses: JasonEtco/upload-to-release@master
+        with:
+          args: build/wp-debug-log-widget.zip application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+      - name: Duplicate asset for GitHub Updater
+        # @see https://github.com/afragen/github-updater/wiki/Settings#release-assets
+        run: cp build/wp-debug-log-widget.zip build/wp-debug-log-widget-${{ env.RELEASE_VERSION }}.zip
+      - name: Upload duplicate to release
+        uses: JasonEtco/upload-to-release@master
+        with:
+          args: build/wp-debug-log-widget-${{ env.RELEASE_VERSION }}.zip application/zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
