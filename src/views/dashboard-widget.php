@@ -1,11 +1,7 @@
-<?php declare(strict_types=1);
+<?php declare(strict_types=1); // phpcs:disable
 
 use TheFrosty\WpDebugLogWidget\ErrorLog;
 
-/**
- * ErrorLog object.
- * @var $this ErrorLog
- */
 if (!($this instanceof ErrorLog)) {
     wp_die(
         sprintf(
@@ -15,13 +11,13 @@ if (!($this instanceof ErrorLog)) {
     );
 }
 
-$errors = \file($this->getLogFileName());
-$length = \absint(\apply_filters(ErrorLog::TAG_LOG_FILE_LENGTH, 300));
-$limit = \absint(\apply_filters(ErrorLog::TAG_LOG_FILE_LIMIT, 100));
+$errors = file($this->getLogFileName());
+$length = absint(apply_filters(ErrorLog::TAG_LOG_FILE_LENGTH, 300));
+$limit = absint(apply_filters(ErrorLog::TAG_LOG_FILE_LIMIT, 100));
 $query = $this->getRequest()->query;
 
 if ($query->has(ErrorLog::ARG_ACTION) && $query->get(ErrorLog::ARG_ACTION) === ErrorLog::ACTION_LOG_CLEARED) {
-    \printf('<p><em>%s</em></p>', \esc_html__('Debug log file cleared.', 'wp-debug-log-widget'));
+    printf('<p><em>%s</em></p>', esc_html__('Debug log file cleared.', 'wp-debug-log-widget'));
 }
 
 if (empty($errors)) {
@@ -39,7 +35,7 @@ if ($this->currentUserCan()) {
     $html .= sprintf(
         '&nbsp;[<strong><a href="%s" onclick="return confirm(\'%s\');">%s</a></strong>]',
         esc_url(
-            wp_nonce_url(add_query_arg($this->getKey(), ErrorLog::ARG_CLEAR, ''), ErrorLog::ACTION, ErrorLog::NONCE)
+            wp_nonce_url(add_query_arg(ErrorLog::KEY, ErrorLog::ARG_CLEAR, ''), ErrorLog::ACTION, ErrorLog::NONCE)
         ),
         esc_attr__('Are you sure?', 'wp-debug-log-widget'),
         esc_html__('CLEAR LOG FILE', 'wp-debug-log-widget')
@@ -47,7 +43,7 @@ if ($this->currentUserCan()) {
     $html .= sprintf(
         '&nbsp;[<strong><a href="%s">%s</a></strong>]',
         esc_url(
-            wp_nonce_url(add_query_arg($this->getKey(), ErrorLog::ARG_VIEW, ''), ErrorLog::ACTION, ErrorLog::NONCE)
+            wp_nonce_url(add_query_arg(ErrorLog::KEY, ErrorLog::ARG_VIEW, ''), ErrorLog::ACTION, ErrorLog::NONCE)
         ),
         esc_html__('VIEW LOG FILE', 'wp-debug-log-widget')
     );
@@ -59,6 +55,6 @@ try {
     $formatErrors = (new ReflectionObject($this))->getMethod('formatErrors');
     $formatErrors->setAccessible(true);
     $formatErrors->invoke($this, $errors, $length, $limit);
-} catch (Throwable $throwable) {
+} catch (Throwable $throwable) { // phpcs:ignore SlevomatCodingStandard.Namespaces.FullyQualifiedExceptions.NonFullyQualifiedException
     echo wpautop($throwable->getMessage());
 }

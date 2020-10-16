@@ -27,4 +27,4 @@ Then run:
 
 Or, run:
 
-`$ composer require thefrosty/wp-debug-log-widget:^2.0`
+`$ composer require thefrosty/wp-debug-log-widget:^1.0`

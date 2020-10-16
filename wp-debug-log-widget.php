@@ -8,8 +8,8 @@
  * Requires at least: 5.4
  * Tested up to: 5.5.1
  * Requires PHP: 7.3
- * Plugin URI: https://github.com/thefrosty/wp-denb
- * GitHub Plugin URI: https://github.com/thefrosty/wp-login-locker
+ * Plugin URI: https://github.com/thefrosty/wp-debug-log-widget
+ * GitHub Plugin URI: https://github.com/thefrosty/wp-debug-log-widget
  * Primary Branch: develop
  * Release Asset: true
  */
