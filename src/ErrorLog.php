@@ -13,6 +13,7 @@ use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 /**
  * Class ErrorLog
  * @package TheFrosty\WpDebugLogWidget
+ * phpcs:disable SlevomatCodingStandard.Files.TypeNameMatchesFileName.NoMatchBetweenTypeNameAndFileName
  */
 class ErrorLog extends AbstractPlugin implements HttpFoundationRequestInterface, PluginAwareInterface, WpHooksInterface
 {
@@ -27,14 +28,20 @@ class ErrorLog extends AbstractPlugin implements HttpFoundationRequestInterface,
     public const TAG_LOG_FILE = 'thefrosty/wp_debug_log_widget/filename';
     public const TAG_LOG_FILE_LIMIT = 'thefrosty/wp_debug_log_widget/file_limit';
     public const TAG_LOG_FILE_LENGTH = 'thefrosty/wp_debug_log_widget/file_length';
-    private const ACTION = self::class;
-    private const KEY_S = '%s_wpdebuglog';
-    private const NONCE = '_wpdebuglog_nonce';
+    public const ACTION = self::class;
+    public const KEY = 'wpdebuglog';
+    public const NONCE = '_wpdebuglog_nonce';
 
-    /** @var string $domain */
+    /**
+     * Domain (host).
+     * @var string $domain
+     */
     private $domain;
 
-    /** @var string $logfile */
+    /**
+     * Location of the logfile.
+     * @var string $logfile
+     */
     private $logfile;
 
     /**
@@ -42,23 +49,23 @@ class ErrorLog extends AbstractPlugin implements HttpFoundationRequestInterface,
      */
     public function __construct()
     {
-        $this->domain = \sanitize_key(\network_home_url());
+        $this->domain = \network_home_url();
         $this->logfile = \WP_CONTENT_DIR . '/debug.log';
     }
 
     public function addHooks(): void
     {
-        $this->addAction('init', [$this, 'maybeRedirect'], 99);
+        $this->addAction('load-index.php', [$this, 'maybeRedirect'], 25);
         $this->addAction('wp_dashboard_setup', [$this, 'addDashboardWidget'], 99);
     }
 
     /**
-     * Return the key.
+     * Return the sanitized domain host.
      * @return string
      */
-    public function getKey(): string
+    public function getDomain(): string
     {
-        return \sprintf(self::KEY_S, $this->domain);
+        return \sanitize_key(\parse_url($this->domain, \PHP_URL_HOST));
     }
 
     /**
@@ -86,13 +93,12 @@ class ErrorLog extends AbstractPlugin implements HttpFoundationRequestInterface,
      */
     protected function maybeRedirect(): void
     {
-        $key = $this->getKey();
         $query = $this->getRequest()->query;
-        if (!$this->currentUserCan() || !$query->has($key)) {
+        if (!$this->currentUserCan() || !$query->has(self::KEY)) {
             return;
         }
 
-        switch ($query->get($key)) {
+        switch ($query->get(self::KEY)) {
             case self::ARG_CLEAR:
                 if (!$query->get(self::NONCE) || !\wp_verify_nonce($query->get(self::NONCE), self::ACTION)) {
                     \wp_safe_redirect(\admin_url());
@@ -101,7 +107,11 @@ class ErrorLog extends AbstractPlugin implements HttpFoundationRequestInterface,
                 $handle = \fopen($this->logfile, 'w');
                 \fclose($handle);
                 \wp_safe_redirect(
-                    \add_query_arg(self::ARG_ACTION, self::ACTION_LOG_CLEARED, \remove_query_arg([$key, self::NONCE]))
+                    \add_query_arg(
+                        self::ARG_ACTION,
+                        self::ACTION_LOG_CLEARED,
+                        \remove_query_arg([self::KEY, self::NONCE])
+                    )
                 );
                 exit;
             case self::ARG_VIEW:
@@ -125,7 +135,7 @@ class ErrorLog extends AbstractPlugin implements HttpFoundationRequestInterface,
     protected function addDashboardWidget(): void
     {
         \wp_add_dashboard_widget(
-            \sprintf('thefrosty-debug-log-%s', $this->domain),
+            \sprintf('thefrosty-debug-log-%s', $this->getDomain()),
             \esc_html__('Debug Log', 'wp-debug-log-widget'),
             function (): void {
                 $this->dashboardHandler();
@@ -160,24 +170,36 @@ class ErrorLog extends AbstractPlugin implements HttpFoundationRequestInterface,
      */
     private function formatErrors(array $errors, int $length, int $limit): void
     {
-        $height = $limit > 1000 ? '100%' : '250px';
-        echo '<div id="' . $this->domain . '-php-errors" style="height:' . $height . ';overflow:scroll;padding:2px;background-color:#faf9f7;border:1px solid #ccc;">';
+        \printf(
+            '<div id="%s-php-errors" style="height:%s;overflow:scroll;padding:0;border:1px solid #ccc;">',
+            $this->getDomain(),
+            $limit >= 1000 ? '100%' : '350px'
+        );
         echo '<ol style="padding:0;margin:0;">';
 
         $i = 0;
         foreach (\array_reverse($errors) as $error) {
-            echo '<li style="padding:2px 4px 6px;border-bottom:1px solid #ececec;">';
+            $i++; // phpcs:ignore
+            \printf(
+                '<li style="padding:%s;background-color:%s;border-bottom:1px solid #ececec;margin:0">',
+                $limit >= 1000 ? '15px 5px' : '8px 5px 10px',
+                $i % 2 === 0 ? '#faf9f7' : '#fdfdfd'
+            );
             $errorOutput = \preg_replace('/\[([^]]+)]/', '<strong>[$1]</strong>', $error, 1);
+
             if (\strlen($errorOutput) > $length) {
-                echo \substr(\strip_tags($errorOutput), 0, $length) . ' [...]';
+                echo \substr(\strip_tags($errorOutput, 'strong'), 0, $length) . ' [...]';
             } else {
                 echo $errorOutput;
             }
             echo '</li>';
 
-            $i++;
             if ($i > $limit) {
-                echo '<li style="padding:2px;border-bottom:2px solid #ccc;"><em>More than ' . $limit . ' errors in log...</em></li>';
+                \printf(
+                    '<li style="padding:2px;border-bottom:2px solid #ccc;"><em>%s</em></li>',
+                    \sprintf(\esc_html__('More than %d errors in log...', 'wp-error-log-widget'), $limit)
+                );
+
                 break;
             }
         }

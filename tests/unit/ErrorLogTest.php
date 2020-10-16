@@ -62,14 +62,14 @@ class ErrorLogTest extends TestCase
     }
 
     /**
-     * Test getKey().
+     * Test getDomain().
      */
-    public function testGetKey(): void
+    public function testGetDomain(): void
     {
-        $this->assertTrue(\method_exists($this->error_log, 'getKey'));
-        $actual = $this->error_log->getKey();
+        $this->assertTrue(\method_exists($this->error_log, 'getDomain'));
+        $actual = $this->error_log->getDomain();
         $this->assertIsString($actual);
-        $this->assertStringContainsString('_wpdebuglog', $actual);
+        $this->assertStringContainsString(\sanitize_key(\parse_url(\network_home_url(), \PHP_URL_HOST)), $actual);
     }
 
     /**
@@ -118,21 +118,19 @@ class ErrorLogTest extends TestCase
         $this->assertTrue(\method_exists($this->error_log, 'addDashboardWidget'));
 
         try {
-            /** Load WordPress dashboard API */
-            require_once \ABSPATH . 'wp-admin/includes/dashboard.php';
             \wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
             \set_current_screen('dashboard');
+            $this->go_to(\admin_url());
+            /** Load WordPress dashboard API */
+            if (!\function_exists('\wp_add_dashboard_widget')) {
+                require_once \ABSPATH . 'wp-admin/includes/dashboard.php';
+            }
             global $wp_meta_boxes;
-            $domain = $this->reflection->getProperty('domain');
-            $domain->setAccessible(true);
-            $domain = $domain->getValue($this->error_log);
             $addDashboardWidget = $this->reflection->getMethod('addDashboardWidget');
             $addDashboardWidget->setAccessible(true);
             $this->assertNull($addDashboardWidget->invoke($this->error_log));
-            $this->assertTrue(\strpos(\wp_json_encode($wp_meta_boxes), $domain) > 0);
+            $this->assertTrue(\strpos(\wp_json_encode($wp_meta_boxes), $this->error_log->getDomain()) > 0);
         } catch (\Throwable $throwable) {
-            error_log($throwable->getMessage());
-            $this->assertInstanceOf(\ReflectionException::class, $throwable);
             $this->markAsRisky();
         }
     }
