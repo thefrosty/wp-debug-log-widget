@@ -153,7 +153,7 @@ class ErrorLog extends AbstractPlugin implements HttpFoundationRequestInterface,
             \printf(
                 '<p><em>%s <code>%s</code></em></p>',
                 \esc_html__('There was a problem reading the debug log file.', 'wp-debug-log-widget'),
-                \sanitize_file_name($filename)
+                $filename
             );
 
             return;
