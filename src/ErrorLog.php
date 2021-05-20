@@ -2,23 +2,19 @@
 
 namespace TheFrosty\WpDebugLogWidget;
 
-use TheFrosty\WpUtilities\Plugin\AbstractPlugin;
-use TheFrosty\WpUtilities\Plugin\HooksTrait;
+use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestInterface;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
-use TheFrosty\WpUtilities\Plugin\PluginAwareInterface;
-use TheFrosty\WpUtilities\Plugin\PluginAwareTrait;
-use TheFrosty\WpUtilities\Plugin\WpHooksInterface;
 
 /**
  * Class ErrorLog
  * @package TheFrosty\WpDebugLogWidget
  * phpcs:disable SlevomatCodingStandard.Files.TypeNameMatchesFileName.NoMatchBetweenTypeNameAndFileName
  */
-class ErrorLog extends AbstractPlugin implements HttpFoundationRequestInterface, PluginAwareInterface, WpHooksInterface
+class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInterface
 {
 
-    use HooksTrait, HttpFoundationRequestTrait, PluginAwareTrait;
+    use HttpFoundationRequestTrait;
 
     public const ACTION_LOG_CLEARED = 'log_cleared';
     public const ARG_ACTION = 'wpdebugaction';
@@ -159,7 +155,7 @@ class ErrorLog extends AbstractPlugin implements HttpFoundationRequestInterface,
             return;
         }
 
-        include $this->getPath('views/dashboard-widget.php');
+        include $this->getPlugin()->getPath('src/views/dashboard-widget.php');
     }
 
     /**
