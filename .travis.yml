@@ -29,6 +29,7 @@ env:
     - WORDPRESS_DB_NAME=wp_tests
     - WP_VERSION=5.7.
     - WP_MULTISITE=0
+    - XDEBUG_MODE=coverage
 
 install:
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
