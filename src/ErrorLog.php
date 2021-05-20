@@ -10,6 +10,7 @@ use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
  * Class ErrorLog
  * @package TheFrosty\WpDebugLogWidget
  * phpcs:disable SlevomatCodingStandard.Files.TypeNameMatchesFileName.NoMatchBetweenTypeNameAndFileName
+ * phpcs:disable SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
  */
 class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInterface
 {

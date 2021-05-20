@@ -1,4 +1,5 @@
-<?php
+<?php declare(strict_types=1);
+
 /**
  * Plugin Name: Debug Log Widget
  * Description: Adds an admin dashboard widget to parse the WordPress error log file.
