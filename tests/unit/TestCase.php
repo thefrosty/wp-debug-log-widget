@@ -70,4 +70,16 @@ class TestCase extends \WP_UnitTestCase
             ->setMethods([self::METHOD_ADD_FILTER])
             ->getMock();
     }
+
+    /**
+     * Get the constants for the current class, excluding the inherited class constants.
+     * @return array
+     */
+    protected function getClassConstants(): array
+    {
+        return \array_flip(\array_diff(
+            $this->reflection->getConstants(),
+            $this->reflection->getParentClass()->getConstants()
+        ));
+    }
 }
