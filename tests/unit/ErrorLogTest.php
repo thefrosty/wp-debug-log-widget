@@ -43,9 +43,9 @@ class ErrorLogTest extends TestCase
      */
     public function testConstants(): void
     {
-        $constants = $this->reflection->getConstants();
+        $constants = $this->getClassConstants();
         $this->assertNotEmpty($constants);
-        $this->assertCount(13, $constants);
+        $this->assertCount(11, $constants);
     }
 
     /**
