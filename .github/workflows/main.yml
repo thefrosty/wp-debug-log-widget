@@ -67,11 +67,14 @@ jobs:
 
       - name: Duplicate asset for GitHub Updater
         # @see https://github.com/afragen/github-updater/wiki/Settings#release-assets
-        run: cp build/wp-debug-log-widget.zip build/wp-debug-log-widget-${VERSION//v}.zip
+        run: |
+          echo "Release `$RELEASE_VERSION`: $RELEASE_VERSION"
+          cp build/wp-debug-log-widget.zip build/wp-debug-log-widget-$RELEASE_VERSION.zip
+
 
       - name: Upload duplicate to release
         uses: JasonEtco/upload-to-release@master
         with:
-          args: build/wp-debug-log-widget-${VERSION//v}.zip application/zip
+          args: build/wp-debug-log-widget-$RELEASE_VERSION.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
