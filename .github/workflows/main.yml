@@ -68,11 +68,11 @@ jobs:
       - name: Create Release artifact
         uses: montudor/action-zip@v0.1.0
         with:
-          args: zip -X -r build/wp-debug-log-widget-$RELEASE_VERSION.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
+          args: zip -X -r build/wp-debug-log-widget-${RELEASE_VERSION}.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
 
       - name: Upload duplicate to release
         uses: JasonEtco/upload-to-release@master
         with:
-          args: build/wp-debug-log-widget-$RELEASE_VERSION.zip application/zip
+          args: build/wp-debug-log-widget-${RELEASE_VERSION}.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
