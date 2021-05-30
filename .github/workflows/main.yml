@@ -65,12 +65,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
 
-      - name: Duplicate asset for GitHub Updater
-        # @see https://github.com/afragen/github-updater/wiki/Settings#release-assets
-        run: |
-          echo "Release `$RELEASE_VERSION`: $RELEASE_VERSION"
-          cp build/wp-debug-log-widget.zip build/wp-debug-log-widget-$RELEASE_VERSION.zip
-
+      - name: Create Release artifact
+        uses: montudor/action-zip@v0.1.0
+        with:
+          args: zip -X -r build/wp-debug-log-widget-$RELEASE_VERSION.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
 
       - name: Upload duplicate to release
         uses: JasonEtco/upload-to-release@master
