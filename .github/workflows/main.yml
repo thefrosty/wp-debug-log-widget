@@ -24,8 +24,12 @@ on:
 jobs:
   build:
     name: Build and Upload Release
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-18.04
     steps:
+      - name: Setup PHP on 7.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '7.3'
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Set Release Version env
