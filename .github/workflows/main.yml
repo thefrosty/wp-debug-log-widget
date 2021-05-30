@@ -70,9 +70,8 @@ jobs:
         with:
           args: zip -X -r build/wp-debug-log-widget-${RELEASE_VERSION}.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
 
-      - name: Upload duplicate to release
-        uses: JasonEtco/upload-to-release@master
+      - name: Upload Release artifact
+        uses: actions/upload-artifact@v2
         with:
-          args: build/wp-debug-log-widget-${RELEASE_VERSION}.zip application/zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          name: wp-debug-log-widget
+          path: build/wp-debug-log-widget-${RELEASE_VERSION}.zip
