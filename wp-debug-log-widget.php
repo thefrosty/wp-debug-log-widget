@@ -5,9 +5,9 @@
  * Description: Adds an admin dashboard widget to parse the WordPress error log file.
  * Author: Austin Passy
  * Author URI: https://github.com/thefrosty
- * Version: 1.1.0
+ * Version: 1.1.2
  * Requires at least: 5.4
- * Tested up to: 5.7.2
+ * Tested up to: 5.8.2
  * Requires PHP: 7.3
  * Plugin URI: https://github.com/thefrosty/wp-debug-log-widget
  * GitHub Plugin URI: https://github.com/thefrosty/wp-debug-log-widget
