@@ -27,15 +27,15 @@ env:
     - WORDPRESS_DB_USER=wp
     - WORDPRESS_DB_PASS=password
     - WORDPRESS_DB_NAME=wp_tests
-    - WP_VERSION=5.7.
+    - WP_VERSION=5.8.0
     - WP_MULTISITE=0
     - XDEBUG_MODE=coverage
 
 install:
+  - composer update --prefer-dist --no-interaction
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
-  - export DEV_BIN_PATH=bin
-  - source $DEV_BIN_PATH/create-all-branches.sh
-  - composer update --prefer-dist --no-interaction --prefer-stable --no-suggest
+  - export DEV_BIN_PATH=./vendor/thefrosty/wp-utilities/bin
+  - source "$DEV_BIN_PATH/create-all-branches.sh"
 
 before_script:
   - mysql -u root -e "GRANT ALL PRIVILEGES ON $WORDPRESS_DB_NAME.* TO $WORDPRESS_DB_USER IDENTIFIED BY '$WORDPRESS_DB_PASS';"
