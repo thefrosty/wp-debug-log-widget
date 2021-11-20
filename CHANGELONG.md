@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## 1.1.2 - 2021-11-20
 - Update dependencies to resolve possible fatal error on legacy Container versions.
+- Bump minimum required PHP version to 7.4.
 
 ## 1.1.1 - 2021-05-30
 - Fixing GitHub Actions to build the release zip(s).
