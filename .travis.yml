@@ -1,5 +1,5 @@
 os: linux
-dist: trusty
+dist: xenial
 
 cache:
   directories:
@@ -9,7 +9,7 @@ cache:
 language: php
 php:
   - '7.4'
-  - '7.3'
+  - '8.0'
 
 branches:
   only:
@@ -19,8 +19,16 @@ branches:
     - "/^.*[bB]ug\\/.*$/"
     - "/^.*[Hh]otfix\\/.*$/"
 
+services:
+  - mysql
+
 jobs:
   fast_finish: true
+  include:
+    - php: '7.4'
+    - php: '8.0'
+  allow_failures:
+    - php: '8.0'
 
 env:
   global:

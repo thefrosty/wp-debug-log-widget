@@ -24,61 +24,51 @@ on:
 jobs:
   build:
     name: Build and Upload Release
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
-      - name: Setup PHP on 7.3
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: '7.3'
-
       - name: Checkout code
         uses: actions/checkout@v2
-
       - name: Set Release Version env
         run: |
           VERSION=${{ github.event.release.tag_name }}
           echo "Release Version: ${VERSION//v}"
           echo "RELEASE_VERSION=${VERSION//v}" >> $GITHUB_ENV
-          echo "GITHUB_ENV: $RELEASE_VERSION"
-
+      # see https://github.com/shivammathur/setup-php
+      - name: Use PHP 7.4
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          coverage: none
+        env:
+          COMPOSER_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build project for production
         run: |
           echo "Release Version: ${{ github.event.release.tag_name }}"
-          composer install --no-dev --optimize-autoloader
+          composer update --no-dev --optimize-autoloader
           mkdir build
-
       - name: Create artifact
-        uses: montudor/action-zip@v0.1.0
+        uses: montudor/action-zip@v0.1.1
         with:
-          args: zip -X -r build/wp-debug-log-widget.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
-
+          args: zip -X -r build/wp-login-locker.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: wp-debug-log-widget
-          path: build/wp-debug-log-widget.zip
-
+          name: wp-login-locker
+          path: build/wp-login-locker.zip
       - name: Upload to release
         uses: JasonEtco/upload-to-release@master
         with:
-          args: build/wp-debug-log-widget.zip application/zip
+          args: build/wp-login-locker.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
-
-      - name: Create Release artifact
-        uses: montudor/action-zip@v0.1.0
+      - name: Duplicate asset for GitHub Updater
+        # @see https://github.com/afragen/github-updater/wiki/Settings#release-assets
+        uses: montudor/action-zip@v0.1.1
         with:
-          args: zip -X -r build/wp-debug-log-widget-${{ env.RELEASE_VERSION }}.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
-
-      - name: Upload Release artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: wp-debug-log-widget
-          path: build/wp-debug-log-widget-${{ env.RELEASE_VERSION }}.zip
-
-      - name: Upload Release to release
+          args: zip -X -r build/wp-login-locker-${{ env.RELEASE_VERSION }}.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
+      - name: Upload duplicate to release
         uses: JasonEtco/upload-to-release@master
         with:
-          args: build/wp-debug-log-widget-${{ env.RELEASE_VERSION }}.zip application/zip
+          args: build/wp-login-locker-${{ env.RELEASE_VERSION }}.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
