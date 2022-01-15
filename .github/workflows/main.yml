@@ -49,26 +49,26 @@ jobs:
       - name: Create artifact
         uses: montudor/action-zip@v0.1.1
         with:
-          args: zip -X -r build/wp-login-locker.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
+          args: zip -X -r build/wp-debug-log-widget.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
       - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: wp-login-locker
-          path: build/wp-login-locker.zip
+          name: wp-debug-log-widget
+          path: build/wp-debug-log-widget.zip
       - name: Upload to release
         uses: JasonEtco/upload-to-release@master
         with:
-          args: build/wp-login-locker.zip application/zip
+          args: build/wp-debug-log-widget.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
       - name: Duplicate asset for GitHub Updater
         # @see https://github.com/afragen/github-updater/wiki/Settings#release-assets
         uses: montudor/action-zip@v0.1.1
         with:
-          args: zip -X -r build/wp-login-locker-${{ env.RELEASE_VERSION }}.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
+          args: zip -X -r build/wp-debug-log-widget-${{ env.RELEASE_VERSION }}.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
       - name: Upload duplicate to release
         uses: JasonEtco/upload-to-release@master
         with:
-          args: build/wp-login-locker-${{ env.RELEASE_VERSION }}.zip application/zip
+          args: build/wp-debug-log-widget-${{ env.RELEASE_VERSION }}.zip application/zip
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
