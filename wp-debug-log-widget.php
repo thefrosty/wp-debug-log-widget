@@ -7,8 +7,8 @@
  * Author URI: https://github.com/thefrosty
  * Version: 1.1.2
  * Requires at least: 5.4
- * Tested up to: 5.8.2
- * Requires PHP: 7.3
+ * Tested up to: 5.8.3
+ * Requires PHP: 7.4
  * Plugin URI: https://github.com/thefrosty/wp-debug-log-widget
  * GitHub Plugin URI: https://github.com/thefrosty/wp-debug-log-widget
  * Primary Branch: develop
