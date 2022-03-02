@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.1.4 - 2022-03-02
+* Add "Update URI" header and bump "Tested up to".
+* Composer dependency updates.
+* Update composer.json schema for Composer 2.2.
+
 ## 1.1.3 - 2022-01-15
 - Fix GitHub workflow creating incorrect slugged zips.
 - Set min PHP Version heading in plugin to ^7.4.
