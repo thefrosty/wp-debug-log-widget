@@ -28,7 +28,7 @@
     "roots/wordpress": "^6.0.0",
     "slevomat/coding-standard": "~6.0",
     "squizlabs/php_codesniffer": "^3.2",
-    "wp-phpunit/wp-phpunit": "^5.9.1",
+    "wp-phpunit/wp-phpunit": "^6.0.0",
     "yoast/phpunit-polyfills": "^1.0.1"
   },
   "config": {
