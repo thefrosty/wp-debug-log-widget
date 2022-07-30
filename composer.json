@@ -10,6 +10,16 @@
       "homepage": "https://austin.passy.co"
     }
   ],
+  "config": {
+    "allow-plugins": {
+      "composer/installers": true,
+      "roots/wordpress-core-installer": true,
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "optimize-autoloader": true,
+    "preferred-install": "dist",
+    "sort-packages": true
+  },
   "require": {
     "php": "^7.4 || ^8.0",
     "ext-openssl": "*",
@@ -30,16 +40,6 @@
     "squizlabs/php_codesniffer": "^3.2",
     "wp-phpunit/wp-phpunit": "^6.0.0",
     "yoast/phpunit-polyfills": "^1.0.1"
-  },
-  "config": {
-    "allow-plugins": {
-      "composer/installers": true,
-      "roots/wordpress-core-installer": true,
-      "dealerdirect/phpcodesniffer-composer-installer": true
-    },
-    "optimize-autoloader": true,
-    "preferred-install": "dist",
-    "sort-packages": true
   },
   "autoload": {
     "psr-4": {
