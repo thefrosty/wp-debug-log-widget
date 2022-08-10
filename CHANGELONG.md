@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+* Change CI from Travis to GitHub Actions.
+
+## 1.1.5 - 2022-08-10
+* Update WP Utilities to `^2.8`.
+* Add PHP 7.4 to platform, which loads php80 polyfills.
+
 ## 1.1.4 - 2022-03-02
 * Add "Update URI" header and bump "Tested up to".
 * Composer dependency updates.
