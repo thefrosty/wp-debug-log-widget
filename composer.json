@@ -17,6 +17,9 @@
       "dealerdirect/phpcodesniffer-composer-installer": true
     },
     "optimize-autoloader": true,
+    "platform": {
+      "php": "7.4"
+    },
     "preferred-install": "dist",
     "sort-packages": true
   },
@@ -26,7 +29,7 @@
     "composer/installers": "~1.0 || ~2.0",
     "pimple/pimple": "~3.0",
     "symfony/http-foundation": "^5.2 || ~6.0",
-    "thefrosty/wp-utilities": "^2.5.2"
+    "thefrosty/wp-utilities": "^2.8"
   },
   "require-dev": {
     "dealerdirect/phpcodesniffer-composer-installer": "^0.7.0",
@@ -57,9 +60,6 @@
     ],
     "phpcs": [
       "bash ./vendor/thefrosty/wp-utilities/bin/phpcs.sh"
-    ],
-    "phpmd": [
-      "bash ./vendor/thefrosty/wp-utilities/bin/phpmd.sh"
     ],
     "phpunit": [
       "./vendor/bin/phpunit --colors --verbose --coverage-html ./tests/results && php ./tests/clover-results.php ./tests/clover.xml 30"

@@ -23,7 +23,7 @@
     <arg name="tab-width" value="4"/>
     <!-- For CI, don't fail on warnings -->
     <config name="ignore_warnings_on_exit" value="1"/>
-    <config name="minimum_supported_wp_version" value="5.5" />
+    <config name="minimum_supported_wp_version" value="5.8" />
 
     <rule ref="PSR2"/>
     <rule ref="vendor/slevomat/coding-standard/SlevomatCodingStandard/ruleset.xml">
