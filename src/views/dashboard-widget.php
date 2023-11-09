@@ -26,9 +26,9 @@ if (empty($errors)) {
     return;
 }
 
-$html = '';
-$html .= sprintf(
-    _n('%s error', '%s errors', count($errors), 'wp-debug-log-widget'), number_format_i18n(count($errors))
+$html = sprintf(
+    _n('%s error', '%s errors', count($errors), 'wp-debug-log-widget'),
+    number_format_i18n(count($errors))
 );
 
 if ($this->currentUserCan()) {

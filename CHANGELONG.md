@@ -5,7 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
-* Change CI from Travis to GitHub Actions.
+
+## 1.2.0 - 2023-11-09
+* Drop support for PHP < 8.0.
+* Update WP Utilities to `^3.2`.
+* DEV: GitHub workflows code cleanup and version updates.
+* DEV: dev dependencies updates.
 
 ## 1.1.5 - 2022-08-10
 * Update WP Utilities to `^2.8`.
@@ -33,6 +38,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## 1.0.1 - 2020-10-16
 - Update GitHub workflow.
 - Remove sanitization on filename.
+* Change CI from Travis to GitHub Actions.
 
 ## 1.0.0 - 2020-10-14
 - Hello world.

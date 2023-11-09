@@ -23,9 +23,16 @@
     <arg name="tab-width" value="4"/>
     <!-- For CI, don't fail on warnings -->
     <config name="ignore_warnings_on_exit" value="1"/>
-    <config name="minimum_supported_wp_version" value="5.8" />
+    <config name="minimum_supported_wp_version" value="6.2" />
 
-    <rule ref="PSR2"/>
+    <rule ref="PSR12">
+        <exclude name="PSR12.Classes.OpeningBraceSpace.Found"/>
+        <exclude name="PSR12.Files.FileHeader.IncorrectOrder"/>
+        <exclude name="PSR12.Files.FileHeader.SpacingAfterBlock"/>
+        <exclude name="PSR12.Files.OpenTag.NotAlone"/>
+        <exclude name="PSR12.Traits.UseDeclaration.MultipleImport"/>
+        <exclude name="PSR12.Traits.UseDeclaration.UseAfterBrace"/>
+    </rule>
     <rule ref="vendor/slevomat/coding-standard/SlevomatCodingStandard/ruleset.xml">
         <exclude name="SlevomatCodingStandard.TypeHints.DeclareStrictTypes.IncorrectStrictTypesFormat"/>
         <exclude name="SlevomatCodingStandard.Classes.TraitUseDeclaration.MultipleTraitsPerDeclaration"/>
@@ -42,12 +49,10 @@
         <exclude name="SlevomatCodingStandard.Commenting.DocCommentSpacing.IncorrectLinesCountBetweenDescriptionAndAnnotations"/>
         <exclude name="SlevomatCodingStandard.ControlStructures.BlockControlStructureSpacing.IncorrectLinesCountBeforeControlStructure"/>
         <exclude name="SlevomatCodingStandard.ControlStructures.RequireYodaComparison.RequiredYodaComparison"/>
-        <!-- REMOVE THIS NEXT LINE WHEN MOVING TO PHP >= 7.4 -->
-        <exclude name="SlevomatCodingStandard.Numbers.RequireNumericLiteralSeparator.RequiredNumericLiteralSeparator"/>
     </rule>
 
     <!-- Loads the PHP Compatibility ruleset. -->
     <rule ref="PHPCompatibility" />
-    <!-- Check for cross-version support for PHP 7.4 and higher. -->
-    <config name="testVersion" value="7.4-"/>
+    <!-- Check for cross-version support for PHP 8.0 and higher. -->
+    <config name="testVersion" value="8.0-"/>
 </ruleset>
