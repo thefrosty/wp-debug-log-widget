@@ -56,7 +56,7 @@ jobs:
           args: zip -X -r build/wp-debug-log-widget.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: wp-debug-log-widget
           path: build/wp-debug-log-widget.zip
