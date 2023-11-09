@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php // phpcs:disable
+
+declare(strict_types=1);
 
 /**
  * Plugin Name: Debug Log Widget
@@ -14,6 +16,7 @@
  * Update URI: https://github.com/thefrosty/wp-debug-log-widget
  * Primary Branch: develop
  * Release Asset: true
+ * phpcs:enable
  */
 
 namespace TheFrosty\WpDebugLogWidget;
@@ -24,7 +27,7 @@ use TheFrosty\WpUtilities\Plugin\PluginFactory;
 use TheFrosty\WpUtilities\WpAdmin\DisablePluginUpdateCheck;
 
 if (\is_readable(__DIR__ . '/vendor/autoload.php')) {
-    require __DIR__ . '/vendor/autoload.php';
+    include __DIR__ . '/vendor/autoload.php';
 }
 
 $plugin = PluginFactory::create('debug-log-widget');
