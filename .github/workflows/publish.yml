@@ -51,12 +51,12 @@ jobs:
           mkdir build
 
       - name: Create artifact
-        uses: montudor/action-zip@v0.1.1
+        uses: montudor/action-zip@v1
         with:
           args: zip -X -r build/wp-debug-log-widget.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wp-debug-log-widget
           path: build/wp-debug-log-widget.zip
@@ -70,7 +70,7 @@ jobs:
 
       - name: Duplicate asset for GitHub Updater
         # @see https://github.com/afragen/github-updater/wiki/Settings#release-assets
-        uses: montudor/action-zip@v0.1.1
+        uses: montudor/action-zip@v1
         with:
           args: zip -X -r build/wp-debug-log-widget-${{ env.RELEASE_VERSION }}.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
 
