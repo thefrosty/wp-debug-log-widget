@@ -54,8 +54,6 @@ jobs:
         env:
           MYSQL_DATABASE: wordpress_test
           MYSQL_ROOT_PASSWORD: root
-          MYSQL_USER: wordpress_user
-          MYSQL_PASSWORD: mysql_password
         ports:
           - 3306/tcp
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
@@ -72,7 +70,7 @@ jobs:
         id: ci-setup
         uses: ./.github/actions/ci-setup
         with:
-          extensions: 'curl, mysql, mysqli, tar, zip'
+          extensions: 'curl, pdo, sqlite, pdo_sqlite, mysql, mysqli, pdo_mysql, tar, zip'
           extensions-cache-key: run-phpunit-${{ matrix.php-version }}
           php-version: ${{ matrix.php-version }}
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -81,6 +79,7 @@ jobs:
       - name: Run PHPUnit
         id: phpunit
         run: |
+          chmod u+x vendor/thefrosty/wp-utilities/bin/install-wp-tests.sh
           ./vendor/thefrosty/wp-utilities/bin/install-wp-tests.sh wordpress_test root root 127.0.0.1:${{ job.services.mysql.ports['3306'] }} ${{ matrix.wp-versions }} true
           composer phpunit
         env:
