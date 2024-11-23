@@ -28,7 +28,7 @@
     "ext-openssl": "*",
     "composer/installers": "~2.0",
     "pimple/pimple": "~3.0",
-    "symfony/http-foundation": "^6.0 || ^7.0",
+    "symfony/http-foundation": "~6.4.14 || ^7.1.7",
     "thefrosty/wp-utilities": "^3.3"
   },
   "require-dev": {
