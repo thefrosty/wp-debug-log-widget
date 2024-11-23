@@ -1,4 +1,5 @@
-<?php declare(strict_types=1); // phpcs:disable
+<?php
+declare(strict_types=1); // phpcs:disable
 
 use TheFrosty\WpDebugLogWidget\ErrorLog;
 
@@ -27,21 +28,25 @@ if (empty($errors)) {
 }
 
 $html = sprintf(
-    _n('%s error', '%s errors', count($errors), 'wp-debug-log-widget'),
+    _n(
+        '<span id="wp-debug-errors-count">%s error</span>',
+        '<span id="wp-debug-errors-count">%s errors</span>',
+        count($errors),
+        'wp-debug-log-widget'
+    ),
     number_format_i18n(count($errors))
 );
 
 if ($this->currentUserCan()) {
     $html .= sprintf(
-        '&nbsp;[<strong><a href="%s" onclick="return confirm(\'%s\');">%s</a></strong>]',
+        '&nbsp;[<strong><a id="wp-debug-log-widget__clear" href="%s" >%s</a></strong>]',
         esc_url(
             wp_nonce_url(add_query_arg(ErrorLog::KEY, ErrorLog::ARG_CLEAR, ''), ErrorLog::ACTION, ErrorLog::NONCE)
         ),
-        esc_attr__('Are you sure?', 'wp-debug-log-widget'),
         esc_html__('CLEAR LOG FILE', 'wp-debug-log-widget')
     );
     $html .= sprintf(
-        '&nbsp;[<strong><a href="%s">%s</a></strong>]',
+        '&nbsp;[<strong><a href="%s" target="_blank">%s</a></strong>]',
         esc_url(
             wp_nonce_url(add_query_arg(ErrorLog::KEY, ErrorLog::ARG_VIEW, ''), ErrorLog::ACTION, ErrorLog::NONCE)
         ),
