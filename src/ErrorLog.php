@@ -1,10 +1,23 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\WpDebugLogWidget;
 
 use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestInterface;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
+use function check_ajax_referer;
+use function fclose;
+use function fopen;
+use function is_resource;
+use function strip_tags;
+use function wp_add_inline_script;
+use function wp_create_nonce;
+use function wp_enqueue_script;
+use function wp_register_script;
+use function wp_send_json_error;
+use function wp_send_json_success;
 
 /**
  * Class ErrorLog
@@ -52,8 +65,10 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
 
     public function addHooks(): void
     {
-        $this->addAction('load-index.php', [$this, 'maybeRedirect'], 25);
+        $this->addAction('load-index.php', [$this, 'maybeRedirect'], 0);
         $this->addAction('wp_dashboard_setup', [$this, 'addDashboardWidget'], 99);
+        $this->addAction('admin_enqueue_scripts', [$this, 'enqueueScript']);
+        $this->addAction('wp_ajax_wp_debug_log_clear', [$this, 'wpDebugLogClear']);
     }
 
     /**
@@ -101,8 +116,8 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
                     \wp_safe_redirect(\admin_url());
                     exit;
                 }
-                $handle = \fopen($this->logfile, 'w');
-                \fclose($handle);
+                $stream = fopen($this->logfile, 'w');
+                fclose($stream);
                 \wp_safe_redirect(
                     \add_query_arg(
                         self::ARG_ACTION,
@@ -138,6 +153,63 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
                 $this->dashboardHandler();
             }
         );
+    }
+
+    /**
+     * Register our inline script.
+     * @param string $hook
+     */
+    protected function enqueueScript(string $hook): void
+    {
+        if ($hook !== 'index.php') {
+            return;
+        }
+
+        $admin_url = admin_url('admin-ajax.php');
+        $nonce = wp_create_nonce(ErrorLog::ACTION);
+        $data = <<< SCRIPT
+<script>
+(function($) {
+  $(document).ready(function() {
+      $('a#wp-debug-log-widget__clear').on('click', (e) => {
+        if (!confirm('Clear the debug log?')) {
+            e.preventDefault()
+            return;
+        }
+        
+        const success = (response) => {
+          if (response.success) {
+            const errors = $('div#localhost-php-errors').fadeOut('slow')
+            setTimeout(() => {
+              $('span#wp-debug-errors-count').text('0 errors')
+              errors.remove()
+            }, 250)
+          }
+        }
+        $.post('$admin_url', { 'action': 'wp_debug_log_clear', 'nonce': '$nonce' }, success)
+      })
+  })
+})(jQuery)
+</script>
+SCRIPT;
+        wp_register_script('wp-debug-log-widget', '', ['jquery']);
+        wp_enqueue_script('wp-debug-log-widget');
+        wp_add_inline_script('wp-debug-log-widget', strip_tags($data));
+    }
+
+    /**
+     * Clear the debug.log.
+     */
+    protected function wpDebugLogClear(): void
+    {
+        check_ajax_referer(ErrorLog::ACTION, 'nonce');
+
+        $stream = fopen($this->logfile, 'w');
+        if (is_resource($stream)) {
+            fclose($stream);
+            wp_send_json_success();
+        }
+        wp_send_json_error();
     }
 
     /**
