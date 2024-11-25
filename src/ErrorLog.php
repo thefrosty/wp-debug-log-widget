@@ -179,7 +179,8 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
         
         const success = (response) => {
           if (response.success) {
-            const errors = $('div#localhost-php-errors').fadeOut('slow')
+            const errors = $('div[id$="-php-errors"]')
+            errors.fadeOut('slow')
             setTimeout(() => {
               $('span#wp-debug-errors-count').text('0 errors')
               errors.remove()
