@@ -6,6 +6,22 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 1.4.2 - 2024-11-25
+* Tag version correctly.
+* Update missed div ID wrapper.
+
+## 1.4.1 - 2024-11-24
+* Resolve/move event preventDefault().
+
+## 1.4.0 - 2024-11-24
+* Resolve GHSA-mrqx-rp3w-jpjp
+* Add PHP 8.4 to CI 
+* AJAX Clear debug.log 
+
+## 1.3.0 - 2024-03-08
+* Update PHP to 8.1.
+* GH Actions updates.
+
 ## 1.2.0 - 2023-11-09
 * Drop support for PHP < 8.0.
 * Update WP Utilities to `^3.2`.
