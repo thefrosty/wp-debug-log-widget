@@ -35,7 +35,6 @@ use function sprintf;
 use function strip_tags;
 use function strlen;
 use function strtolower;
-use function strval;
 use function substr;
 use function wp_add_dashboard_widget;
 use function wp_add_inline_script;
