@@ -6,6 +6,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 1.4.3 - 2024-12-04
+* Don't parse debug.log files that are larger than the servers allowed memory.
+
 ## 1.4.2 - 2024-11-25
 * Tag version correctly.
 * Update missed div ID wrapper.
