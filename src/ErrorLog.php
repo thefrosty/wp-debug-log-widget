@@ -4,20 +4,49 @@ declare(strict_types=1);
 
 namespace TheFrosty\WpDebugLogWidget;
 
+use Exception;
 use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestInterface;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
+use function add_query_arg;
+use function apply_filters;
+use function array_reverse;
 use function check_ajax_referer;
+use function esc_html__;
 use function fclose;
+use function file;
+use function file_exists;
+use function filesize;
 use function fopen;
+use function get_current_user_id;
+use function intval;
+use function is_array;
 use function is_resource;
+use function is_super_admin;
+use function network_home_url;
+use function parse_url;
+use function preg_match;
+use function preg_replace;
+use function printf;
+use function remove_query_arg;
+use function round;
+use function sanitize_key;
+use function sprintf;
 use function strip_tags;
+use function strlen;
+use function strtolower;
+use function substr;
+use function wp_add_dashboard_widget;
 use function wp_add_inline_script;
 use function wp_create_nonce;
 use function wp_enqueue_script;
 use function wp_register_script;
+use function wp_safe_redirect;
 use function wp_send_json_error;
 use function wp_send_json_success;
+use function wp_verify_nonce;
+use const WP_CONTENT_DIR;
+use const WP_MEMORY_LIMIT;
 
 /**
  * Class ErrorLog
@@ -46,21 +75,21 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
      * Domain (host).
      * @var string $domain
      */
-    private $domain;
+    private string $domain;
 
     /**
      * Location of the logfile.
      * @var string $logfile
      */
-    private $logfile;
+    private string $logfile;
 
     /**
      * ErrorLog constructor.
      */
     public function __construct()
     {
-        $this->domain = \network_home_url();
-        $this->logfile = \WP_CONTENT_DIR . '/debug.log';
+        $this->domain = network_home_url();
+        $this->logfile = WP_CONTENT_DIR . '/debug.log';
     }
 
     public function addHooks(): void
@@ -77,7 +106,7 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
      */
     public function getDomain(): string
     {
-        return \sanitize_key(\parse_url($this->domain, \PHP_URL_HOST));
+        return sanitize_key(parse_url($this->domain, \PHP_URL_HOST));
     }
 
     /**
@@ -87,7 +116,7 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
      */
     public function getLogFileName(): string
     {
-        return \apply_filters(self::TAG_LOG_FILE, $this->logfile);
+        return apply_filters(self::TAG_LOG_FILE, $this->logfile);
     }
 
     /**
@@ -97,7 +126,7 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
      */
     public function currentUserCan(): bool
     {
-        return \apply_filters(self::TAG_CURRENT_USER_CAN, \is_super_admin(\get_current_user_id()));
+        return apply_filters(self::TAG_CURRENT_USER_CAN, is_super_admin(get_current_user_id()));
     }
 
     /**
@@ -112,30 +141,30 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
 
         switch ($query->get(self::KEY)) {
             case self::ARG_CLEAR:
-                if (!$query->get(self::NONCE) || !\wp_verify_nonce($query->get(self::NONCE), self::ACTION)) {
-                    \wp_safe_redirect(\admin_url());
+                if (!$query->get(self::NONCE) || !wp_verify_nonce($query->get(self::NONCE), self::ACTION)) {
+                    wp_safe_redirect(\admin_url());
                     exit;
                 }
                 $stream = fopen($this->logfile, 'w');
                 fclose($stream);
-                \wp_safe_redirect(
-                    \add_query_arg(
+                wp_safe_redirect(
+                    add_query_arg(
                         self::ARG_ACTION,
                         self::ACTION_LOG_CLEARED,
-                        \remove_query_arg([self::KEY, self::NONCE])
+                        remove_query_arg([self::KEY, self::NONCE])
                     )
                 );
                 exit;
             case self::ARG_VIEW:
                 if (!$query->get(self::NONCE) ||
-                    !\wp_verify_nonce($query->get(self::NONCE), self::ACTION) ||
-                    !\file_exists($this->logfile) ||
-                    !\is_array(\file($this->logfile))
+                    !wp_verify_nonce($query->get(self::NONCE), self::ACTION) ||
+                    !file_exists($this->logfile) ||
+                    !is_array(file($this->logfile))
                 ) {
-                    \wp_safe_redirect(\admin_url());
+                    wp_safe_redirect(\admin_url());
                     exit;
                 }
-                $errors = \file($this->logfile);
+                $errors = file($this->logfile);
                 $this->formatErrors($errors, 1000, 10000);
                 exit;
         }
@@ -146,9 +175,9 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
      */
     protected function addDashboardWidget(): void
     {
-        \wp_add_dashboard_widget(
-            \sprintf('thefrosty-debug-log-%s', $this->getDomain()),
-            \esc_html__('Debug Log', 'wp-debug-log-widget'),
+        wp_add_dashboard_widget(
+            sprintf('thefrosty-debug-log-%s', $this->getDomain()),
+            esc_html__('Debug Log', 'wp-debug-log-widget'),
             function (): void {
                 $this->dashboardHandler();
             }
@@ -219,12 +248,36 @@ SCRIPT;
     private function dashboardHandler(): void
     {
         $filename = $this->getLogFileName();
-        if (!\file_exists($filename) || \file($filename) === false) {
-            \printf(
+        if (!file_exists($filename) || !is_file($filename)) {
+            printf(
                 '<p><em>%s <code>%s</code></em></p>',
-                \esc_html__('There was a problem reading the debug log file.', 'wp-debug-log-widget'),
+                esc_html__('There was a problem reading the debug log file.', 'wp-debug-log-widget'),
                 $filename
             );
+
+            return;
+        }
+
+        try {
+            $file_size = filesize($filename);
+            $memory_limit_bytes = $this->byteConvert(WP_MEMORY_LIMIT);
+            // If there is an error.
+            if ($file_size === false || !$memory_limit_bytes) {
+                throw new Exception('Error reading filesize or getting WP_MEMORY_LIMIT');
+            }
+            // If the file size is greater than our allowed server memory (minus 5MB).
+            if ($file_size >= ($memory_limit_bytes - (5 * 1024))) {
+                throw new Exception(
+                    sprintf(
+                        'File size (%s MB) exceeds the memory limit defined by WP_MEMORY_LIMIT of %s. 
+                        Not parsing to avoid possible exhaustion errors.',
+                        round($file_size / 1024 / 1024, 2),
+                        WP_MEMORY_LIMIT
+                    )
+                );
+            }
+        } catch (Exception $e) {
+            printf('<p><em>%s <br><code>%s</code></em></p>', esc_html($e->getMessage()), $filename);
 
             return;
         }
@@ -240,7 +293,7 @@ SCRIPT;
      */
     private function formatErrors(array $errors, int $length, int $limit): void
     {
-        \printf(
+        printf(
             '<div id="%s-php-errors" style="height:%s;overflow:scroll;padding:0;border:1px solid #ccc;">',
             $this->getDomain(),
             $limit >= 1000 ? '100%' : '350px'
@@ -248,31 +301,52 @@ SCRIPT;
         echo '<ol style="padding:0;margin:0;">';
 
         $i = 0;
-        foreach (\array_reverse($errors) as $error) {
+        foreach (array_reverse($errors) as $error) {
             $i++; // phpcs:ignore
-            \printf(
+            printf(
                 '<li style="padding:%s;background-color:%s;border-bottom:1px solid #ececec;margin:0">',
                 $limit >= 1000 ? '15px 5px' : '8px 5px 10px',
                 $i % 2 === 0 ? '#faf9f7' : '#fdfdfd'
             );
-            $errorOutput = \preg_replace('/\[([^]]+)]/', '<strong>[$1]</strong>', $error, 1);
+            $errorOutput = preg_replace('/\[([^]]+)]/', '<strong>[$1]</strong>', $error, 1);
 
-            if (\strlen($errorOutput) > $length) {
-                echo \substr(\strip_tags($errorOutput, 'strong'), 0, $length) . ' [...]';
+            if (strlen($errorOutput) > $length) {
+                echo substr(strip_tags($errorOutput, 'strong'), 0, $length) . ' [...]';
             } else {
                 echo $errorOutput;
             }
             echo '</li>';
 
             if ($i > $limit) {
-                \printf(
+                printf(
                     '<li style="padding:2px;border-bottom:2px solid #ccc;"><em>%s</em></li>',
-                    \sprintf(\esc_html__('More than %d errors in log...', 'wp-error-log-widget'), $limit)
+                    sprintf(esc_html__('More than %d errors in log...', 'wp-error-log-widget'), $limit)
                 );
 
                 break;
             }
         }
         echo '</ol></div>';
+    }
+
+    /**
+     * Convert an input value to Bytes.
+     * @link https://stackoverflow.com/a/11813414/558561
+     * @param mixed $input
+     * @return int|null
+     */
+    private function byteConvert(mixed $input): ?int
+    {
+        preg_match('/(\d+)(\w+)/', $input, $matches);
+        $type = !isset($matches[2]) ? '' : strtolower($matches[2]);
+        $output = match ($type) {
+            'b' => $matches[1],
+            'kb' => $matches[1] * 1024,
+            'm', 'mb' => $matches[1] * 1024 * 1024,
+            'g', 'gb', 't', 'tb' => $matches[1] * 1024 * 1024 * 1024,
+            default => null,  // or handle the default case
+        };
+
+        return !isset($output) ? null : intval($output);
     }
 }

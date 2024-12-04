@@ -32,7 +32,12 @@ if (\is_readable(__DIR__ . '/vendor/autoload.php')) {
 
 $plugin = PluginFactory::create('debug-log-widget');
 
-$plugin
-    ->add(new DisablePluginUpdateCheck())
-    ->addOnHook(ErrorLog::class, 'admin_init', 10, true)
-    ->initialize();
+if (\is_admin()) {
+    $plugin
+        ->add(new DisablePluginUpdateCheck())
+        ->addOnHook(ErrorLog::class, 'admin_init', 10, true);
+}
+
+\add_action('init', static function () use ($plugin) {
+    $plugin->initialize();
+});
