@@ -262,7 +262,7 @@ SCRIPT;
             $file_size = filesize($filename);
             $memory_limit_bytes = $this->byteConvert(WP_MEMORY_LIMIT);
             // If there is an error.
-            if (!$file_size || !$memory_limit_bytes) {
+            if ($file_size === false || !$memory_limit_bytes) {
                 throw new Exception('Error reading filesize or getting WP_MEMORY_LIMIT');
             }
             // If the file size is greater than our allowed server memory (minus 5MB).
