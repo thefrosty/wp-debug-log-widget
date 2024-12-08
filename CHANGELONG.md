@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 1.4.5 - 2024-12-08
+* Fix Action release zip.
+
+## 1.4.4 - 2024-12-08
+* Move preventDefault before confirm.
+
 ## 1.4.3 - 2024-12-04
 * Don't parse debug.log files that are larger than the servers allowed memory.
 
