@@ -201,10 +201,10 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
 (function($) {
   $(document).ready(function() {
       $('a#wp-debug-log-widget__clear').on('click', (e) => {
+        e.preventDefault()
         if (!confirm('Clear the debug log?')) {
             return;
         }
-        e.preventDefault()
         
         const success = (response) => {
           if (response.success) {
