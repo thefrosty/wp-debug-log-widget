@@ -7,10 +7,10 @@ declare(strict_types=1);
  * Description: Adds an admin dashboard widget to parse the WordPress error log file.
  * Author: Austin Passy
  * Author URI: https://github.com/thefrosty
- * Version: 1.4.5
- * Requires at least: 6.2
- * Tested up to: 6.7.1
- * Requires PHP: 8.1
+ * Version: 1.5.0
+ * Requires at least: 6.6
+ * Tested up to: 6.8.0
+ * Requires PHP: 8.3
  * Plugin URI: https://github.com/thefrosty/wp-debug-log-widget
  * GitHub Plugin URI: https://github.com/thefrosty/wp-debug-log-widget
  * Update URI: https://github.com/thefrosty/wp-debug-log-widget
