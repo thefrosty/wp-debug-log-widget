@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpDebugLogWidget;
 
@@ -13,13 +15,21 @@ use TheFrosty\WpUtilities\Plugin\PluginFactory;
 class TestCase extends \WP_UnitTestCase
 {
 
-    public const METHOD_ADD_FILTER = 'addFilter';
+    public const string METHOD_ADD_FILTER = 'addFilter';
 
     /** @var Plugin $plugin */
-    protected $plugin;
+    protected Plugin $plugin;
 
     /** @var \ReflectionObject $reflection */
-    protected $reflection;
+    protected \ReflectionObject $reflection;
+
+    /**
+     * @internal Workaround to allow the tests to run on PHPUnit 10.
+     * @link https://core.trac.wordpress.org/ticket/59486
+     */
+    public function expectDeprecated(): void
+    {
+    }
 
     /**
      * Setup.
@@ -77,9 +87,11 @@ class TestCase extends \WP_UnitTestCase
      */
     protected function getClassConstants(): array
     {
-        return \array_flip(\array_diff(
-            $this->reflection->getConstants(),
-            $this->reflection->getParentClass()->getConstants()
-        ));
+        return \array_flip(
+            \array_diff(
+                $this->reflection->getConstants(),
+                $this->reflection->getParentClass()->getConstants()
+            )
+        );
     }
 }

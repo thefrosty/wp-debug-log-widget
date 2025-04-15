@@ -15,7 +15,7 @@ class ErrorLogTest extends TestCase
     /**
      * @var ErrorLog $error_log
      */
-    private $error_log;
+    private ErrorLog $error_log;
 
     /**
      * Setup.
@@ -102,11 +102,9 @@ class ErrorLogTest extends TestCase
 
         try {
             $maybeRedirect = $this->reflection->getMethod('maybeRedirect');
-            $maybeRedirect->setAccessible(true);
             $this->assertNull($maybeRedirect->invoke($this->error_log));
         } catch (\Throwable $throwable) {
             $this->assertInstanceOf(\ReflectionException::class, $throwable);
-            $this->markAsRisky();
         }
     }
 
@@ -127,11 +125,9 @@ class ErrorLogTest extends TestCase
             }
             global $wp_meta_boxes;
             $addDashboardWidget = $this->reflection->getMethod('addDashboardWidget');
-            $addDashboardWidget->setAccessible(true);
             $this->assertNull($addDashboardWidget->invoke($this->error_log));
             $this->assertTrue(\strpos(\wp_json_encode($wp_meta_boxes), $this->error_log->getDomain()) > 0);
-        } catch (\Throwable $throwable) {
-            $this->markAsRisky();
+        } catch (\Throwable) {
         }
     }
 
@@ -144,14 +140,12 @@ class ErrorLogTest extends TestCase
 
         try {
             $dashboardHandler = $this->reflection->getMethod('dashboardHandler');
-            $dashboardHandler->setAccessible(true);
             \ob_start();
             $dashboardHandler->invoke($this->error_log);
             $actual = \ob_get_clean();
             $this->assertNotEmpty($actual);
         } catch (\Throwable $throwable) {
             $this->assertInstanceOf(\ReflectionException::class, $throwable);
-            $this->markAsRisky();
         }
     }
 
@@ -164,14 +158,12 @@ class ErrorLogTest extends TestCase
 
         try {
             $formatErrors = $this->reflection->getMethod('formatErrors');
-            $formatErrors->setAccessible(true);
             \ob_start();
             $formatErrors->invoke($this->error_log, [], 1, 1);
             $actual = \ob_get_clean();
             $this->assertNotEmpty($actual);
         } catch (\Throwable $throwable) {
             $this->assertInstanceOf(\ReflectionException::class, $throwable);
-            $this->markAsRisky();
         }
     }
 }
