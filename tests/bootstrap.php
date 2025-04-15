@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 require dirname(__DIR__) . '/vendor/autoload.php';
 
@@ -15,7 +17,7 @@ if (!file_exists($_tests_dir . '/includes/functions.php')) {
 
 // Give access to tests_add_filter() function.
 require_once $_tests_dir . '/includes/functions.php';
-tests_add_filter('muplugins_loaded', function () {
+tests_add_filter('muplugins_loaded', static function (): void {
     require dirname(__DIR__) . '/wp-debug-log-widget.php';
 });
 
