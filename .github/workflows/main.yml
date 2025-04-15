@@ -66,6 +66,9 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install SVN
+        run: sudo apt-get update && sudo apt-get install -y subversion
+
       - name: Setup
         id: ci-setup
         uses: ./.github/actions/ci-setup
@@ -88,6 +91,7 @@ jobs:
 
       - name: Upload coverage to Codecov
         if: ${{ github.event_name == 'pull_request' }}
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v5
         with:
           fail_ci_if_error: false
+          token: ${{ secrets.CODECOV_TOKEN }}
