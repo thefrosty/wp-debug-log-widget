@@ -1,9 +1,9 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 require_once dirname(__DIR__) . '/vendor/autoload.php';
 /* Path to the WordPress codebase you'd like to test. Add a forward slash in the end. */
-// This is the install path as defined by `wordpress-install-dir` in composer.json
-$abspath = defined('TRAVIS') || getenv('TRAVIS') ? '/wordpress/' : '/';
 define('ABSPATH', dirname(__DIR__) . '/wordpress/');
 
 /*
@@ -34,9 +34,9 @@ define('WP_DEBUG', true);
 // These tests will DROP ALL TABLES in the database with the prefix named below.
 // DO NOT use a production database or one that is shared with something else.
 
-define('DB_NAME', getenv('WORDPRESS_DB_NAME') ?: 'wp_phpunit_tests');
-define('DB_USER', getenv('WORDPRESS_DB_USER') ?: 'wordpress_user');
-define('DB_PASSWORD', getenv('WORDPRESS_DB_PASS') ?: 'mysql_password');
+define('DB_NAME', getenv('WORDPRESS_DB_NAME') ?: 'wordpress_test');
+define('DB_USER', getenv('WORDPRESS_DB_USER') ?: 'wp');
+define('DB_PASSWORD', getenv('WORDPRESS_DB_PASS') ?: 'password');
 define('DB_HOST', getenv('WORDPRESS_DB_HOST') ?: '127.0.0.1');
 define('DB_CHARSET', 'utf8mb4');
 define('DB_COLLATE', '');
