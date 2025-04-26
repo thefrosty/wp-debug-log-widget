@@ -8,6 +8,7 @@ use Exception;
 use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestInterface;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
+use TheFrosty\WpUtilities\WpAdmin\Capabilities;
 use function add_query_arg;
 use function apply_filters;
 use function array_reverse;
@@ -45,6 +46,7 @@ use function wp_safe_redirect;
 use function wp_send_json_error;
 use function wp_send_json_success;
 use function wp_verify_nonce;
+use const PHP_URL_HOST;
 use const WP_CONTENT_DIR;
 use const WP_MEMORY_LIMIT;
 
@@ -59,17 +61,17 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
 
     use HttpFoundationRequestTrait;
 
-    public const ACTION_LOG_CLEARED = 'log_cleared';
-    public const ARG_ACTION = 'wpdebugaction';
-    public const ARG_CLEAR = 'clear';
-    public const ARG_VIEW = 'view';
-    public const TAG_CURRENT_USER_CAN = 'thefrosty/wp_debug_log_widget/current_user_can';
-    public const TAG_LOG_FILE = 'thefrosty/wp_debug_log_widget/filename';
-    public const TAG_LOG_FILE_LIMIT = 'thefrosty/wp_debug_log_widget/file_limit';
-    public const TAG_LOG_FILE_LENGTH = 'thefrosty/wp_debug_log_widget/file_length';
+    public const string ACTION_LOG_CLEARED = 'log_cleared';
+    public const string ARG_ACTION = 'wpdebugaction';
+    public const string ARG_CLEAR = 'clear';
+    public const string ARG_VIEW = 'view';
+    public const string TAG_CURRENT_USER_CAN = 'thefrosty/wp_debug_log_widget/current_user_can';
+    public const string TAG_LOG_FILE = 'thefrosty/wp_debug_log_widget/filename';
+    public const string TAG_LOG_FILE_LIMIT = 'thefrosty/wp_debug_log_widget/file_limit';
+    public const string TAG_LOG_FILE_LENGTH = 'thefrosty/wp_debug_log_widget/file_length';
     public const ACTION = self::class;
-    public const KEY = 'wpdebuglog';
-    public const NONCE = '_wpdebuglog_nonce';
+    public const string KEY = 'wpdebuglog';
+    public const string NONCE = '_wpdebuglog_nonce';
 
     /**
      * Domain (host).
@@ -95,7 +97,8 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
     public function addHooks(): void
     {
         $this->addAction('load-index.php', [$this, 'maybeRedirect'], 0);
-        $this->addAction('wp_dashboard_setup', [$this, 'addDashboardWidget'], 99);
+        $this->addAction('wp_dashboard_setup', [$this, 'dashboardSetup'], 99);
+        $this->addAction('wp_network_dashboard_setup', [$this, 'networkDashboardSetup'], 99);
         $this->addAction('admin_enqueue_scripts', [$this, 'enqueueScript']);
         $this->addAction('wp_ajax_wp_debug_log_clear', [$this, 'wpDebugLogClear']);
     }
@@ -106,7 +109,7 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
      */
     public function getDomain(): string
     {
-        return sanitize_key(parse_url($this->domain, \PHP_URL_HOST));
+        return sanitize_key(parse_url($this->domain, PHP_URL_HOST));
     }
 
     /**
@@ -171,17 +174,27 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
     }
 
     /**
-     * Register the dashboard widget.
+     * Register the dashboard widget for the admin page.
      */
-    protected function addDashboardWidget(): void
+    protected function dashboardSetup(): void
     {
-        wp_add_dashboard_widget(
-            sprintf('thefrosty-debug-log-%s', $this->getDomain()),
-            esc_html__('Debug Log', 'wp-debug-log-widget'),
-            function (): void {
-                $this->dashboardHandler();
-            }
-        );
+        if (!Capabilities::userHasRole(get_current_user_id(), 'administrator')) {
+            return;
+        }
+
+        $this->addDashboardWidget();
+    }
+
+    /**
+     * Register the dashboard widget for the network admin page.
+     */
+    protected function networkDashboardSetup(): void
+    {
+        if (!is_super_admin(get_current_user_id())) {
+            return;
+        }
+
+        $this->addDashboardWidget();
     }
 
     /**
@@ -240,6 +253,20 @@ SCRIPT;
             wp_send_json_success();
         }
         wp_send_json_error();
+    }
+
+    /**
+     * Register the dashboard widget.
+     */
+    private function addDashboardWidget(): void
+    {
+        wp_add_dashboard_widget(
+            sprintf('thefrosty-debug-log-%s', $this->getDomain()),
+            esc_html__('Debug Log', 'wp-debug-log-widget'),
+            function (): void {
+                $this->dashboardHandler();
+            }
+        );
     }
 
     /**
