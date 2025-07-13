@@ -59,7 +59,6 @@ echo wpautop($html);
 
 try {
     $formatErrors = (new ReflectionObject($this))->getMethod('formatErrors');
-    $formatErrors->setAccessible(true);
     $formatErrors->invoke($this, $errors, $length, $limit);
 } catch (Throwable $throwable) { // phpcs:ignore SlevomatCodingStandard.Namespaces.FullyQualifiedExceptions.NonFullyQualifiedException
     echo wpautop($throwable->getMessage());
