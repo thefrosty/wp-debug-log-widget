@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 1.5.0.1 - 2025-07-13
+
+* Update `wp-utilties`.
+* Remove setAccessible, PHP RFC: Make reflection setAccessible() no-op
+
 ## 1.5.0 - 2025-04-15
 * Make minimum PHP version >= 8.3
 * Added Network Dashboard widget for multisite.
