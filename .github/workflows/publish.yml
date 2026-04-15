@@ -65,7 +65,7 @@ jobs:
           path: build/wp-debug-log-widget.zip
 
       - name: Upload to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: build/wp-debug-log-widget.zip
         env:
@@ -78,7 +78,7 @@ jobs:
           args: zip -X -r build/wp-debug-log-widget-${{ env.RELEASE_VERSION }}.zip . -x *.git* bin** node_modules/\* .* "*/\.*" *.dist *.xml composer.* package*.json tests** build**
 
       - name: Upload duplicate to release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: build/wp-debug-log-widget-${{ env.RELEASE_VERSION }}.zip
         env:
