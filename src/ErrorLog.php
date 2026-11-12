@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace TheFrosty\WpDebugLogWidget;
 
-use Exception;
+use RuntimeException;
 use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestInterface;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
@@ -213,31 +213,31 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
         $admin_url = admin_url('admin-ajax.php');
         $nonce = wp_create_nonce(self::ACTION);
         $data = <<< SCRIPT
-<script>
-(function($) {
-  $(document).ready(function() {
-      $('a#wp-debug-log-widget__clear').on('click', (e) => {
-        e.preventDefault()
-        if (!confirm('Clear the debug log?')) {
-            return;
-        }
-        
-        const success = (response) => {
-          if (response.success) {
-            const errors = $('div[id$="-php-errors"]')
-            errors.fadeOut('slow')
-            setTimeout(() => {
-              $('span#wp-debug-errors-count').text('0 errors')
-              errors.remove()
-            }, 250)
-          }
-        }
-        $.post('$admin_url', { 'action': 'wp_debug_log_clear', 'nonce': '$nonce' }, success)
-      })
-  })
-})(jQuery)
-</script>
-SCRIPT;
+            <script>
+            (function($) {
+              $(document).ready(function() {
+                  $('a#wp-debug-log-widget__clear').on('click', (e) => {
+                    e.preventDefault()
+                    if (!confirm('Clear the debug log?')) {
+                        return;
+                    }
+            
+                    const success = (response) => {
+                      if (response.success) {
+                        const errors = $('div[id$="-php-errors"]')
+                        errors.fadeOut('slow')
+                        setTimeout(() => {
+                          $('span#wp-debug-errors-count').text('0 errors')
+                          errors.remove()
+                        }, 250)
+                      }
+                    }
+                    $.post('$admin_url', { 'action': 'wp_debug_log_clear', 'nonce': '$nonce' }, success)
+                  })
+              })
+            })(jQuery)
+            </script>
+            SCRIPT;
         wp_register_script('wp-debug-log-widget', '', ['jquery']);
         wp_enqueue_script('wp-debug-log-widget');
         wp_add_inline_script('wp-debug-log-widget', strip_tags($data));
@@ -274,6 +274,7 @@ SCRIPT;
 
     /**
      * Dashboard widget view handler callback.
+     * phpcs:disable Squiz.Commenting.FunctionCommentThrowTag.Missing
      */
     private function dashboardHandler(): void
     {
@@ -293,11 +294,11 @@ SCRIPT;
             $memory_limit_bytes = $this->byteConvert(WP_MEMORY_LIMIT);
             // If there is an error.
             if ($file_size === false || !$memory_limit_bytes) {
-                throw new Exception('Error reading filesize or getting WP_MEMORY_LIMIT');
+                throw new RuntimeException('Error reading filesize or getting WP_MEMORY_LIMIT');
             }
             // If the file size is greater than our allowed server memory (minus 5MB).
             if ($file_size >= ($memory_limit_bytes - (5 * 1024))) {
-                throw new Exception(
+                throw new RuntimeException(
                     sprintf(
                         'File size (%s MB) exceeds the memory limit defined by WP_MEMORY_LIMIT of %s. 
                         Not parsing to avoid possible exhaustion errors.',
@@ -306,7 +307,7 @@ SCRIPT;
                     )
                 );
             }
-        } catch (Exception $e) {
+        } catch (RuntimeException $e) {
             printf('<p><em>%s <br><code>%s</code></em></p>', esc_html($e->getMessage()), $filename);
 
             return;
@@ -350,7 +351,7 @@ SCRIPT;
             if ($i > $limit) {
                 printf(
                     '<li style="padding:2px;border-bottom:2px solid #ccc;"><em>%s</em></li>',
-                    sprintf(esc_html__('More than %d errors in log...', 'wp-error-log-widget'), $limit)
+                    sprintf(esc_html__('More than %d errors in log...', 'wp-debug-log-widget'), $limit)
                 );
 
                 break;
@@ -374,7 +375,7 @@ SCRIPT;
             'kb' => $matches[1] * 1024,
             'm', 'mb' => $matches[1] * 1024 * 1024,
             'g', 'gb', 't', 'tb' => $matches[1] * 1024 * 1024 * 1024,
-            default => null,  // or handle the default case
+            default => null,  // or handle the default case.
         };
 
         return !isset($output) ? null : intval($output);
