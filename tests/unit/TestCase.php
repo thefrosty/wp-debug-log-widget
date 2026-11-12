@@ -5,14 +5,20 @@ declare(strict_types=1);
 namespace TheFrosty\Tests\WpDebugLogWidget;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionObject;
 use TheFrosty\WpUtilities\Plugin\Plugin;
 use TheFrosty\WpUtilities\Plugin\PluginFactory;
+use WP_UnitTestCase;
+use function array_diff;
+use function array_flip;
+use function dirname;
+use function get_class;
 
 /**
  * Class TestCase
  * @package TheFrosty\Tests\WpLoginLocker
  */
-class TestCase extends \WP_UnitTestCase
+class TestCase extends WP_UnitTestCase
 {
 
     public const string METHOD_ADD_FILTER = 'addFilter';
@@ -20,8 +26,8 @@ class TestCase extends \WP_UnitTestCase
     /** @var Plugin $plugin */
     protected Plugin $plugin;
 
-    /** @var \ReflectionObject $reflection */
-    protected \ReflectionObject $reflection;
+    /** @var ReflectionObject $reflection */
+    protected ReflectionObject $reflection;
 
     /**
      * @internal Workaround to allow the tests to run on PHPUnit 10.
@@ -38,7 +44,7 @@ class TestCase extends \WP_UnitTestCase
     {
         parent::setUp();
         // Set the filename to the root of the plugin (not the test plugin (so we have asset access without mocks).
-        $filename = \dirname(__DIR__, 2) . '/wp-debug-log-widget.php';
+        $filename = dirname(__DIR__, 2) . '/wp-debug-log-widget.php';
         $this->plugin = PluginFactory::create('wp-debug-log-widget', $filename);
     }
 
@@ -54,19 +60,19 @@ class TestCase extends \WP_UnitTestCase
     /**
      * Gets an instance of the \ReflectionObject.
      * @param object $argument
-     * @return \ReflectionObject
+     * @return ReflectionObject
      */
-    protected function getReflection(object $argument): \ReflectionObject
+    protected function getReflection(object $argument): ReflectionObject
     {
         static $reflector;
 
-        if (!isset($reflector[\get_class($argument)]) ||
-            !($reflector[\get_class($argument)] instanceof \ReflectionObject)
+        if (!isset($reflector[get_class($argument)]) ||
+            !($reflector[get_class($argument)] instanceof ReflectionObject)
         ) {
-            $reflector[\get_class($argument)] = new \ReflectionObject($argument);
+            $reflector[get_class($argument)] = new ReflectionObject($argument);
         }
 
-        return $reflector[\get_class($argument)];
+        return $reflector[get_class($argument)];
     }
 
     /**
@@ -87,8 +93,8 @@ class TestCase extends \WP_UnitTestCase
      */
     protected function getClassConstants(): array
     {
-        return \array_flip(
-            \array_diff(
+        return array_flip(
+            array_diff(
                 $this->reflection->getConstants(),
                 $this->reflection->getParentClass()->getConstants()
             )

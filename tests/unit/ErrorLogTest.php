@@ -1,9 +1,26 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpDebugLogWidget;
 
+use ReflectionException;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\WpDebugLogWidget\ErrorLog;
+use Throwable;
+use function admin_url;
+use function function_exists;
+use function method_exists;
+use function network_home_url;
+use function ob_get_clean;
+use function ob_start;
+use function parse_url;
+use function sanitize_key;
+use function set_current_screen;
+use function strpos;
+use function wp_json_encode;
+use function wp_set_current_user;
+use const PHP_URL_HOST;
 
 /**
  * Class ErrorLogTest
@@ -55,8 +72,8 @@ class ErrorLogTest extends TestCase
     {
         $provider = $this->getMockProvider(ErrorLog::class);
         $provider->expects($this->exactly(2))
-                 ->method(self::METHOD_ADD_FILTER)
-                 ->willReturn(true);
+            ->method(self::METHOD_ADD_FILTER)
+            ->willReturn(true);
         /** @var ErrorLog $provider */
         $provider->addHooks();
     }
@@ -66,10 +83,10 @@ class ErrorLogTest extends TestCase
      */
     public function testGetDomain(): void
     {
-        $this->assertTrue(\method_exists($this->error_log, 'getDomain'));
+        $this->assertTrue(method_exists($this->error_log, 'getDomain'));
         $actual = $this->error_log->getDomain();
         $this->assertIsString($actual);
-        $this->assertStringContainsString(\sanitize_key(\parse_url(\network_home_url(), \PHP_URL_HOST)), $actual);
+        $this->assertStringContainsString(sanitize_key(parse_url(network_home_url(), PHP_URL_HOST)), $actual);
     }
 
     /**
@@ -77,7 +94,7 @@ class ErrorLogTest extends TestCase
      */
     public function testGetLogFileName(): void
     {
-        $this->assertTrue(\method_exists($this->error_log, 'getLogFileName'));
+        $this->assertTrue(method_exists($this->error_log, 'getLogFileName'));
         $actual = $this->error_log->getLogFileName();
         $this->assertIsString($actual);
         $this->assertStringContainsString('debug.log', $actual);
@@ -88,7 +105,7 @@ class ErrorLogTest extends TestCase
      */
     public function testCurrentUserCan(): void
     {
-        $this->assertTrue(\method_exists($this->error_log, 'currentUserCan'));
+        $this->assertTrue(method_exists($this->error_log, 'currentUserCan'));
         $actual = $this->error_log->currentUserCan();
         $this->assertIsBool($actual);
     }
@@ -98,13 +115,13 @@ class ErrorLogTest extends TestCase
      */
     public function testMaybeRedirect(): void
     {
-        $this->assertTrue(\method_exists($this->error_log, 'maybeRedirect'));
+        $this->assertTrue(method_exists($this->error_log, 'maybeRedirect'));
 
         try {
             $maybeRedirect = $this->reflection->getMethod('maybeRedirect');
             $this->assertNull($maybeRedirect->invoke($this->error_log));
-        } catch (\Throwable $throwable) {
-            $this->assertInstanceOf(\ReflectionException::class, $throwable);
+        } catch (Throwable $throwable) {
+            $this->assertInstanceOf(ReflectionException::class, $throwable);
         }
     }
 
@@ -113,21 +130,21 @@ class ErrorLogTest extends TestCase
      */
     public function testAddDashboardWidget(): void
     {
-        $this->assertTrue(\method_exists($this->error_log, 'addDashboardWidget'));
+        $this->assertTrue(method_exists($this->error_log, 'addDashboardWidget'));
 
         try {
-            \wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
-            \set_current_screen('dashboard');
-            $this->go_to(\admin_url());
+            wp_set_current_user(self::factory()->user->create(['role' => 'administrator']));
+            set_current_screen('dashboard');
+            $this->go_to(admin_url());
             /** Load WordPress dashboard API */
-            if (!\function_exists('\wp_add_dashboard_widget')) {
+            if (!function_exists('\wp_add_dashboard_widget')) {
                 require_once \ABSPATH . 'wp-admin/includes/dashboard.php';
             }
             global $wp_meta_boxes;
             $addDashboardWidget = $this->reflection->getMethod('addDashboardWidget');
             $this->assertNull($addDashboardWidget->invoke($this->error_log));
-            $this->assertTrue(\strpos(\wp_json_encode($wp_meta_boxes), $this->error_log->getDomain()) > 0);
-        } catch (\Throwable) {
+            $this->assertTrue(strpos(wp_json_encode($wp_meta_boxes), $this->error_log->getDomain()) > 0);
+        } catch (Throwable) {
         }
     }
 
@@ -136,16 +153,16 @@ class ErrorLogTest extends TestCase
      */
     public function testDashboardHandler(): void
     {
-        $this->assertTrue(\method_exists($this->error_log, 'dashboardHandler'));
+        $this->assertTrue(method_exists($this->error_log, 'dashboardHandler'));
 
         try {
             $dashboardHandler = $this->reflection->getMethod('dashboardHandler');
-            \ob_start();
+            ob_start();
             $dashboardHandler->invoke($this->error_log);
-            $actual = \ob_get_clean();
+            $actual = ob_get_clean();
             $this->assertNotEmpty($actual);
-        } catch (\Throwable $throwable) {
-            $this->assertInstanceOf(\ReflectionException::class, $throwable);
+        } catch (Throwable $throwable) {
+            $this->assertInstanceOf(ReflectionException::class, $throwable);
         }
     }
 
@@ -154,16 +171,16 @@ class ErrorLogTest extends TestCase
      */
     public function testFormatErrors(): void
     {
-        $this->assertTrue(\method_exists($this->error_log, 'formatErrors'));
+        $this->assertTrue(method_exists($this->error_log, 'formatErrors'));
 
         try {
             $formatErrors = $this->reflection->getMethod('formatErrors');
-            \ob_start();
+            ob_start();
             $formatErrors->invoke($this->error_log, [], 1, 1);
-            $actual = \ob_get_clean();
+            $actual = ob_get_clean();
             $this->assertNotEmpty($actual);
-        } catch (\Throwable $throwable) {
-            $this->assertInstanceOf(\ReflectionException::class, $throwable);
+        } catch (Throwable $throwable) {
+            $this->assertInstanceOf(ReflectionException::class, $throwable);
         }
     }
 }

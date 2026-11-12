@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace TheFrosty\WpDebugLogWidget;
 
-use Exception;
+use RuntimeException;
 use TheFrosty\WpUtilities\Plugin\AbstractHookProvider;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestInterface;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
 use TheFrosty\WpUtilities\WpAdmin\Capabilities;
 use function add_query_arg;
+use function admin_url;
 use function apply_filters;
 use function array_reverse;
 use function check_ajax_referer;
@@ -20,6 +21,7 @@ use function file_exists;
 use function filesize;
 use function fopen;
 use function get_current_user_id;
+use function getenv;
 use function intval;
 use function is_array;
 use function is_resource;
@@ -53,6 +55,7 @@ use const WP_MEMORY_LIMIT;
 /**
  * Class ErrorLog
  * @package TheFrosty\WpDebugLogWidget
+ *
  * phpcs:disable SlevomatCodingStandard.Files.TypeNameMatchesFileName.NoMatchBetweenTypeNameAndFileName
  * phpcs:disable SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
  */
@@ -119,7 +122,8 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
      */
     public function getLogFileName(): string
     {
-        return apply_filters(self::TAG_LOG_FILE, $this->logfile);
+        $logfile = getenv('SPINUPWP_LOG_PATH') ?: $this->logfile;
+        return apply_filters(self::TAG_LOG_FILE, $logfile);
     }
 
     /**
@@ -145,10 +149,10 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
         switch ($query->get(self::KEY)) {
             case self::ARG_CLEAR:
                 if (!$query->get(self::NONCE) || !wp_verify_nonce($query->get(self::NONCE), self::ACTION)) {
-                    wp_safe_redirect(\admin_url());
+                    wp_safe_redirect(admin_url());
                     exit;
                 }
-                $stream = fopen($this->logfile, 'w');
+                $stream = fopen($this->logfile, 'wb');
                 fclose($stream);
                 wp_safe_redirect(
                     add_query_arg(
@@ -159,12 +163,13 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
                 );
                 exit;
             case self::ARG_VIEW:
-                if (!$query->get(self::NONCE) ||
+                if (
+                    !$query->get(self::NONCE) ||
                     !wp_verify_nonce($query->get(self::NONCE), self::ACTION) ||
                     !file_exists($this->logfile) ||
                     !is_array(file($this->logfile))
                 ) {
-                    wp_safe_redirect(\admin_url());
+                    wp_safe_redirect(admin_url());
                     exit;
                 }
                 $errors = file($this->logfile);
@@ -208,33 +213,33 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
         }
 
         $admin_url = admin_url('admin-ajax.php');
-        $nonce = wp_create_nonce(ErrorLog::ACTION);
+        $nonce = wp_create_nonce(self::ACTION);
         $data = <<< SCRIPT
-<script>
-(function($) {
-  $(document).ready(function() {
-      $('a#wp-debug-log-widget__clear').on('click', (e) => {
-        e.preventDefault()
-        if (!confirm('Clear the debug log?')) {
-            return;
-        }
-        
-        const success = (response) => {
-          if (response.success) {
-            const errors = $('div[id$="-php-errors"]')
-            errors.fadeOut('slow')
-            setTimeout(() => {
-              $('span#wp-debug-errors-count').text('0 errors')
-              errors.remove()
-            }, 250)
-          }
-        }
-        $.post('$admin_url', { 'action': 'wp_debug_log_clear', 'nonce': '$nonce' }, success)
-      })
-  })
-})(jQuery)
-</script>
-SCRIPT;
+            <script>
+            (function($) {
+              $(document).ready(function() {
+                  $('a#wp-debug-log-widget__clear').on('click', (e) => {
+                    e.preventDefault()
+                    if (!confirm('Clear the debug log?')) {
+                        return;
+                    }
+            
+                    const success = (response) => {
+                      if (response.success) {
+                        const errors = $('div[id$="-php-errors"]')
+                        errors.fadeOut('slow')
+                        setTimeout(() => {
+                          $('span#wp-debug-errors-count').text('0 errors')
+                          errors.remove()
+                        }, 250)
+                      }
+                    }
+                    $.post('$admin_url', { 'action': 'wp_debug_log_clear', 'nonce': '$nonce' }, success)
+                  })
+              })
+            })(jQuery)
+            </script>
+            SCRIPT;
         wp_register_script('wp-debug-log-widget', '', ['jquery']);
         wp_enqueue_script('wp-debug-log-widget');
         wp_add_inline_script('wp-debug-log-widget', strip_tags($data));
@@ -245,9 +250,9 @@ SCRIPT;
      */
     protected function wpDebugLogClear(): void
     {
-        check_ajax_referer(ErrorLog::ACTION, 'nonce');
+        check_ajax_referer(self::ACTION, 'nonce');
 
-        $stream = fopen($this->logfile, 'w');
+        $stream = fopen($this->logfile, 'wb');
         if (is_resource($stream)) {
             fclose($stream);
             wp_send_json_success();
@@ -271,6 +276,7 @@ SCRIPT;
 
     /**
      * Dashboard widget view handler callback.
+     * phpcs:disable Squiz.Commenting.FunctionCommentThrowTag.Missing
      */
     private function dashboardHandler(): void
     {
@@ -290,11 +296,11 @@ SCRIPT;
             $memory_limit_bytes = $this->byteConvert(WP_MEMORY_LIMIT);
             // If there is an error.
             if ($file_size === false || !$memory_limit_bytes) {
-                throw new Exception('Error reading filesize or getting WP_MEMORY_LIMIT');
+                throw new RuntimeException('Error reading filesize or getting WP_MEMORY_LIMIT');
             }
             // If the file size is greater than our allowed server memory (minus 5MB).
             if ($file_size >= ($memory_limit_bytes - (5 * 1024))) {
-                throw new Exception(
+                throw new RuntimeException(
                     sprintf(
                         'File size (%s MB) exceeds the memory limit defined by WP_MEMORY_LIMIT of %s. 
                         Not parsing to avoid possible exhaustion errors.',
@@ -303,7 +309,7 @@ SCRIPT;
                     )
                 );
             }
-        } catch (Exception $e) {
+        } catch (RuntimeException $e) {
             printf('<p><em>%s <br><code>%s</code></em></p>', esc_html($e->getMessage()), $filename);
 
             return;
@@ -347,7 +353,7 @@ SCRIPT;
             if ($i > $limit) {
                 printf(
                     '<li style="padding:2px;border-bottom:2px solid #ccc;"><em>%s</em></li>',
-                    sprintf(esc_html__('More than %d errors in log...', 'wp-error-log-widget'), $limit)
+                    sprintf(esc_html__('More than %d errors in log...', 'wp-debug-log-widget'), $limit)
                 );
 
                 break;
@@ -371,7 +377,7 @@ SCRIPT;
             'kb' => $matches[1] * 1024,
             'm', 'mb' => $matches[1] * 1024 * 1024,
             'g', 'gb', 't', 'tb' => $matches[1] * 1024 * 1024 * 1024,
-            default => null,  // or handle the default case
+            default => null,  // or handle the default case.
         };
 
         return !isset($output) ? null : intval($output);
