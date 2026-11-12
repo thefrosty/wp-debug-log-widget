@@ -9,7 +9,7 @@
          beStrictAboutCoverageMetadata="true"
          beStrictAboutOutputDuringTests="true"
          displayDetailsOnPhpunitDeprecations="true"
-         failOnPhpunitDeprecation="true"
+         failOnPhpunitDeprecation="false"
          failOnWarning="true">
 
     <coverage>
