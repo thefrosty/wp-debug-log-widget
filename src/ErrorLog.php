@@ -55,6 +55,7 @@ use const WP_MEMORY_LIMIT;
 /**
  * Class ErrorLog
  * @package TheFrosty\WpDebugLogWidget
+ *
  * phpcs:disable SlevomatCodingStandard.Files.TypeNameMatchesFileName.NoMatchBetweenTypeNameAndFileName
  * phpcs:disable SlevomatCodingStandard.TypeHints.PropertyTypeHint.MissingNativeTypeHint
  */
@@ -162,7 +163,8 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
                 );
                 exit;
             case self::ARG_VIEW:
-                if (!$query->get(self::NONCE) ||
+                if (
+                    !$query->get(self::NONCE) ||
                     !wp_verify_nonce($query->get(self::NONCE), self::ACTION) ||
                     !file_exists($this->logfile) ||
                     !is_array(file($this->logfile))
