@@ -210,7 +210,7 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
         }
 
         $admin_url = admin_url('admin-ajax.php');
-        $nonce = wp_create_nonce(ErrorLog::ACTION);
+        $nonce = wp_create_nonce(self::ACTION);
         $data = <<< SCRIPT
 <script>
 (function($) {
@@ -247,7 +247,7 @@ SCRIPT;
      */
     protected function wpDebugLogClear(): void
     {
-        check_ajax_referer(ErrorLog::ACTION, 'nonce');
+        check_ajax_referer(self::ACTION, 'nonce');
 
         $stream = fopen($this->logfile, 'w');
         if (is_resource($stream)) {
