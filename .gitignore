@@ -1,5 +1,6 @@
 .DS_Store
 /.idea
+.phpunit.cache
 tests/results/
 node_modules/
 tests/clover.xml
