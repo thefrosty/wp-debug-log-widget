@@ -22,7 +22,6 @@ use function filesize;
 use function fopen;
 use function get_current_user_id;
 use function getenv;
-use function intval;
 use function is_array;
 use function is_resource;
 use function is_super_admin;
@@ -83,18 +82,11 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
     private string $domain;
 
     /**
-     * Location of the logfile.
-     * @var string $logfile
-     */
-    private string $logfile;
-
-    /**
      * ErrorLog constructor.
      */
     public function __construct()
     {
         $this->domain = network_home_url();
-        $this->logfile = getenv('SPINUPWP_LOG_PATH') ?: WP_CONTENT_DIR . '/debug.log';
     }
 
     public function addHooks(): void
@@ -122,7 +114,8 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
      */
     public function getLogFileName(): string
     {
-        return apply_filters(self::TAG_LOG_FILE, $this->logfile);
+        $logfile = getenv('SPINUPWP_LOG_PATH') ?: WP_CONTENT_DIR . '/debug.log';
+        return apply_filters(self::TAG_LOG_FILE, $logfile);
     }
 
     /**
@@ -145,13 +138,14 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
             return;
         }
 
+        $filename = $this->getLogFileName();
         switch ($query->get(self::KEY)) {
             case self::ARG_CLEAR:
                 if (!$query->get(self::NONCE) || !wp_verify_nonce($query->get(self::NONCE), self::ACTION)) {
                     wp_safe_redirect(admin_url());
                     exit;
                 }
-                $stream = fopen($this->logfile, 'wb');
+                $stream = fopen($filename, 'wb');
                 fclose($stream);
                 wp_safe_redirect(
                     add_query_arg(
@@ -165,13 +159,13 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
                 if (
                     !$query->get(self::NONCE) ||
                     !wp_verify_nonce($query->get(self::NONCE), self::ACTION) ||
-                    !file_exists($this->logfile) ||
-                    !is_array(file($this->logfile))
+                    !file_exists($filename) ||
+                    !is_array(file($filename))
                 ) {
                     wp_safe_redirect(admin_url());
                     exit;
                 }
-                $errors = file($this->logfile);
+                $errors = file($filename);
                 $this->formatErrors($errors, 1000, 10000);
                 exit;
         }
@@ -251,7 +245,8 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
     {
         check_ajax_referer(self::ACTION, 'nonce');
 
-        $stream = fopen($this->logfile, 'wb');
+        $filename = $this->getLogFileName();
+        $stream = fopen($filename, 'wb');
         if (is_resource($stream)) {
             fclose($stream);
             wp_send_json_success();
@@ -379,6 +374,6 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
             default => null,  // or handle the default case.
         };
 
-        return !isset($output) ? null : intval($output);
+        return !isset($output) ? null : (int)$output;
     }
 }
