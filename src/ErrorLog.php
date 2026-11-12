@@ -94,7 +94,7 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
     public function __construct()
     {
         $this->domain = network_home_url();
-        $this->logfile = WP_CONTENT_DIR . '/debug.log';
+        $this->logfile = getenv('SPINUPWP_LOG_PATH') ?: WP_CONTENT_DIR . '/debug.log';
     }
 
     public function addHooks(): void
@@ -122,8 +122,7 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
      */
     public function getLogFileName(): string
     {
-        $logfile = getenv('SPINUPWP_LOG_PATH') ?: $this->logfile;
-        return apply_filters(self::TAG_LOG_FILE, $logfile);
+        return apply_filters(self::TAG_LOG_FILE, $this->logfile);
     }
 
     /**
