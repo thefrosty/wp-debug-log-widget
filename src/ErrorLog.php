@@ -10,6 +10,7 @@ use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestInterface;
 use TheFrosty\WpUtilities\Plugin\HttpFoundationRequestTrait;
 use TheFrosty\WpUtilities\WpAdmin\Capabilities;
 use function add_query_arg;
+use function admin_url;
 use function apply_filters;
 use function array_reverse;
 use function check_ajax_referer;
@@ -147,7 +148,7 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
         switch ($query->get(self::KEY)) {
             case self::ARG_CLEAR:
                 if (!$query->get(self::NONCE) || !wp_verify_nonce($query->get(self::NONCE), self::ACTION)) {
-                    wp_safe_redirect(\admin_url());
+                    wp_safe_redirect(admin_url());
                     exit;
                 }
                 $stream = fopen($this->logfile, 'wb');
@@ -166,7 +167,7 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
                     !file_exists($this->logfile) ||
                     !is_array(file($this->logfile))
                 ) {
-                    wp_safe_redirect(\admin_url());
+                    wp_safe_redirect(admin_url());
                     exit;
                 }
                 $errors = file($this->logfile);
