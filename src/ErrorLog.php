@@ -249,7 +249,7 @@ SCRIPT;
     {
         check_ajax_referer(self::ACTION, 'nonce');
 
-        $stream = fopen($this->logfile, 'w');
+        $stream = fopen($this->logfile, 'wb');
         if (is_resource($stream)) {
             fclose($stream);
             wp_send_json_success();
