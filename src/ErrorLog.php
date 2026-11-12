@@ -150,7 +150,7 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
                     wp_safe_redirect(\admin_url());
                     exit;
                 }
-                $stream = fopen($this->logfile, 'w');
+                $stream = fopen($this->logfile, 'wb');
                 fclose($stream);
                 wp_safe_redirect(
                     add_query_arg(
