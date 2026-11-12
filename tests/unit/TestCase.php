@@ -77,7 +77,7 @@ class TestCase extends \WP_UnitTestCase
     protected function getMockProvider(string $className): MockObject
     {
         return $this->getMockBuilder($className)
-            ->setMethods([self::METHOD_ADD_FILTER])
+            ->onlyMethods([self::METHOD_ADD_FILTER])
             ->getMock();
     }
 
