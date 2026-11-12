@@ -35,8 +35,8 @@ define('WP_DEBUG', true);
 // DO NOT use a production database or one that is shared with something else.
 
 define('DB_NAME', getenv('WORDPRESS_DB_NAME') ?: 'wordpress_test');
-define('DB_USER', getenv('WORDPRESS_DB_USER') ?: 'wp');
-define('DB_PASSWORD', getenv('WORDPRESS_DB_PASS') ?: 'password');
+define('DB_USER', getenv('WORDPRESS_DB_USER') ?: 'root');
+define('DB_PASSWORD', getenv('WORDPRESS_DB_PASS') ?: 'root');
 define('DB_HOST', getenv('WORDPRESS_DB_HOST') ?: '127.0.0.1');
 define('DB_CHARSET', 'utf8mb4');
 define('DB_COLLATE', '');

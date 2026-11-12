@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace TheFrosty\Tests\WpDebugLogWidget;
 
+use PHPUnit\Framework\Attributes\CoversClass;
 use ReflectionException;
 use Symfony\Component\HttpFoundation\Request;
 use TheFrosty\WpDebugLogWidget\ErrorLog;
@@ -26,6 +27,7 @@ use const PHP_URL_HOST;
  * Class ErrorLogTest
  * @package TheFrosty\Tests\WpDebugLogWidget
  */
+#[CoversClass(ErrorLog::class)]
 class ErrorLogTest extends TestCase
 {
 
@@ -71,7 +73,7 @@ class ErrorLogTest extends TestCase
     public function testAddHooks(): void
     {
         $provider = $this->getMockProvider(ErrorLog::class);
-        $provider->expects($this->exactly(2))
+        $provider->expects($this->exactly(5))
             ->method(self::METHOD_ADD_FILTER)
             ->willReturn(true);
         /** @var ErrorLog $provider */
