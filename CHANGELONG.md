@@ -6,6 +6,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+## 1.6.1 - 2026-11-12
+
+* Fix global file path.
+
 ## 1.6.0 - 2026-11-12
 
 * Add support for SpinupWP debug log path environment variable definition.
