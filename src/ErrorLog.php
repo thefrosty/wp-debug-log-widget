@@ -20,6 +20,7 @@ use function file_exists;
 use function filesize;
 use function fopen;
 use function get_current_user_id;
+use function getenv;
 use function intval;
 use function is_array;
 use function is_resource;
@@ -119,7 +120,8 @@ class ErrorLog extends AbstractHookProvider implements HttpFoundationRequestInte
      */
     public function getLogFileName(): string
     {
-        return apply_filters(self::TAG_LOG_FILE, $this->logfile);
+        $logfile = getenv('SPINUPWP_LOG_PATH') ?: $this->logfile;
+        return apply_filters(self::TAG_LOG_FILE, $logfile);
     }
 
     /**
