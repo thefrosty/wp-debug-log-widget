@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+* Remove unused `pimple/pimple` dependency.
 * Update `thefrosty/wp-utilities` to `^4.0`.
 
 ## 1.6.1 - 2026-11-12
