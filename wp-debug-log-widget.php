@@ -7,7 +7,7 @@ declare(strict_types=1);
  * Description: Adds an admin dashboard widget to parse the WordPress error log file.
  * Author: Austin Passy
  * Author URI: https://github.com/thefrosty
- * Version: 1.7.0
+ * Version: 1.8.0
  * Requires at least: 6.7
  * Tested up to: 7.2
  * Requires PHP: 8.4

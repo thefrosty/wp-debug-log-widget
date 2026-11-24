@@ -17,7 +17,7 @@ To install this package, edit your `composer.json` file:
 ```json
 {
     "require": {
-        "thefrosty/wp-debug-log-widget": "^1.6"
+        "thefrosty/wp-debug-log-widget": "^1.8"
     }
 }
 ```
